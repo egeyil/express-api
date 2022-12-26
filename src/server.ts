@@ -5,23 +5,24 @@ import config from "config";
 const app = express();
 import path from 'path';
 import cors from 'cors';
-import corsOptions from './config/corsOptions.js';
+import corsOptions from './utils/corsOptions.js';
 import { logger } from './middleware/logEvents.js';
 import errorHandler from './middleware/errorHandler.js';
 import connectDB from './utils/dbConnect.js';
 import credentials from './middleware/credentials.js';
+import responseTime from "response-time";
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 const PORT = process.env.PORT || 3500;
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-// @ts-ignore
-import xss from 'xss-clean';
 import hpp from 'hpp';
 import multer from 'multer';
 import compression from 'compression';
 import validator from 'validator';
+import { restResponseTimeHistogram, startMetricsServer } from "./utils/metrics";
+import swaggerDocs from "./utils/swagger";
 
 // Connect to MongoDB
 connectDB();
@@ -53,7 +54,7 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 app.use(helmet());
 
 // Data sanitization against XSS
-app.use(xss());
+//app.use(xss());
 
 // Development logging
 if (process.env.NODE_ENV === 'development') {
