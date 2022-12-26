@@ -1,25 +1,27 @@
-import {Request, Response} from "express";
-require('dotenv').config();
-const express = require('express');
+import express, { Request, Response } from "express";
+import dotenv from "dotenv";
+dotenv.config();
+import config from "config";
 const app = express();
-const path = require('path');
-const cors = require('cors');
-const corsOptions = require('./config/corsOptions');
-const { logger } = require('./middleware/logEvents');
-const errorHandler = require('./middleware/errorHandler');
-const cookieParser = require('cookie-parser');
-const credentials = require('./middleware/credentials');
-const mongoose = require('mongoose');
-const connectDB = require('./config/dbConnect');
+import path from 'path';
+import cors from 'cors';
+import corsOptions from './config/corsOptions';
+import { logger } from './middleware/logEvents';
+import errorHandler from './middleware/errorHandler';
+import connectDB from './config/dbConnect';
+import credentials from './middleware/credentials';
+import cookieParser from 'cookie-parser';
+import mongoose from 'mongoose';
 const PORT = process.env.PORT || 3500;
-const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-const xss = require('xss-clean');
-const hpp = require('hpp');
-const multer = require('multer');
-const compression = require('compression');
-const validator = require('validator');
+import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+// @ts-ignore
+import xss from 'xss-clean';
+import hpp from 'hpp';
+import multer from 'multer';
+import compression from 'compression';
+import validator from 'validator';
 
 // Connect to MongoDB
 connectDB();
