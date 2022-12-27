@@ -12,6 +12,7 @@ Has support for CRUD operations, authentication with JWT, authorization with use
 -  Mongoose
 -  Zod for validation
 -  Express-validator for validation and sanitization
+-  Error and Request logging
 -  Jest for testing
 -  ESLint
 -  Prettier

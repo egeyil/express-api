@@ -1,10 +1,11 @@
-import { format } from 'date-fns';
-import { v4 as uuid } from 'uuid';
+import {format} from 'date-fns';
+import {v4 as uuid} from 'uuid';
 
 import fs from 'fs';
-const fsPromises = fs.promises;
 import path from 'path';
 import {NextFunction, Request, Response} from "express";
+import * as process from "process";
+const fsPromises = fs.promises;
 
 export const logEvents = async (message: string, logName: string) => {
   const dateTime = `${format(new Date(), 'yyyyMMdd\tHH:mm:ss')}`;
@@ -22,7 +23,11 @@ export const logEvents = async (message: string, logName: string) => {
 }
 
 export const logger = (req: Request, res: Response, next: NextFunction) => {
-  // logEvents(`${req.method}\t${req.headers.origin}\t${req.url}\t${req.body}`, 'reqLog.txt');
-  console.log(req.cookies, req.body);
+  if (process.env.NODE_ENV === 'development') {
+    console.log(req.cookies, req.body);
+  }
+  if (process.env.NODE_ENV === 'production') {
+    logEvents(`${req.method}\t${req.headers.origin}\t${req.url}\t${req.body}`, 'reqLog.txt');
+  }
   next();
 }

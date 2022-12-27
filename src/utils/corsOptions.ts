@@ -1,12 +1,13 @@
 import allowedOrigins from '../config/allowedOrigins.js';
+import {CorsOptions} from "cors";
 
-const corsOptions = {
-  origin: (origin: string, callback: Function) => {
-    // Remove !origin in production
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true)
+const corsOptions: CorsOptions  = {
+  origin: (origin, callback)=> {
+    // Remove !origin if you do not want to allow requests with no origin (Server-to-server requests or local tools)
+    if (origin && allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      return callback(null, true)
     } else {
-      callback(new Error('Not allowed by CORS'));
+      return callback(new Error('Not allowed by CORS'));
     }
   },
   optionsSuccessStatus: 200

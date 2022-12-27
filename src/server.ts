@@ -1,9 +1,5 @@
 import express, {Request, Response} from "express";
 import dotenv from "dotenv";
-
-dotenv.config();
-import config from "config";
-
 const app = express();
 import path from 'path';
 import cors from 'cors';
@@ -15,17 +11,19 @@ import credentials from './middleware/credentials';
 import responseTime from "response-time";
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
-
-const PORT = Number(process.env.PORT) || 3500;
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import config from "config";
 import hpp from 'hpp';
 import multer from 'multer';
 import compression from 'compression';
-import validator from 'validator';
 import {restResponseTimeHistogram, startMetricsServer} from "./utils/metrics";
 import swaggerDocs from "./utils/swagger";
+
+dotenv.config();
+const PORT = Number(process.env.PORT) || 3500;
+
 
 // Connect to MongoDB
 connectDB();
