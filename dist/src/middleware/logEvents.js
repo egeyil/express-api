@@ -33,8 +33,8 @@ const logEvents = (message, logName) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.logEvents = logEvents;
 const logger = (req, res, next) => {
-    (0, exports.logEvents)(`${req.method}\t${req.headers.origin}\t${req.url}\t${req.body}`, 'reqLog.txt');
-    console.log(`${req.method} ${req.path}`);
+    // logEvents(`${req.method}\t${req.headers.origin}\t${req.url}\t${req.body}`, 'reqLog.txt');
+    console.log(req.cookies, req.body);
     next();
 };
 exports.logger = logger;

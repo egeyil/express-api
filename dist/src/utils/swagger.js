@@ -8,7 +8,7 @@ const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const package_json_1 = require("../../package.json");
 const options = {
     definition: {
-        openapi: "3.0.0",
+        openapi: "3.1.0",
         info: {
             title: "REST API Docs",
             version: package_json_1.version,

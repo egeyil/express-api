@@ -10,6 +10,7 @@ const app = (0, express_1.default)();
 const path_1 = __importDefault(require("path"));
 const cors_1 = __importDefault(require("cors"));
 const corsOptions_1 = __importDefault(require("./utils/corsOptions"));
+const logEvents_1 = require("./middleware/logEvents");
 const errorHandler_1 = __importDefault(require("./middleware/errorHandler"));
 const dbConnect_1 = __importDefault(require("./utils/dbConnect"));
 const credentials_1 = __importDefault(require("./middleware/credentials"));
@@ -45,6 +46,7 @@ app.use((0, helmet_1.default)());
 // Development logging
 if (process.env.NODE_ENV === 'development') {
     app.use((0, morgan_1.default)('dev'));
+    app.use(logEvents_1.logger);
 }
 // Limit requests from same IP to 150 per hour for API Routes
 const apiLimiter = (0, express_rate_limit_1.default)({
