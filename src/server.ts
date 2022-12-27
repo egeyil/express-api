@@ -1,19 +1,22 @@
-import express, { Request, Response } from "express";
+import express, {Request, Response} from "express";
 import dotenv from "dotenv";
+
 dotenv.config();
 import config from "config";
+
 const app = express();
 import path from 'path';
 import cors from 'cors';
 import corsOptions from "./utils/corsOptions";
-import { logger } from './middleware/logEvents';
+import {logger} from './middleware/logEvents';
 import errorHandler from './middleware/errorHandler';
 import connectDB from './utils/dbConnect';
 import credentials from './middleware/credentials';
 import responseTime from "response-time";
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
-const PORT = process.env.PORT || 3500;
+
+const PORT = Number(process.env.PORT) || 3500;
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
@@ -21,14 +24,11 @@ import hpp from 'hpp';
 import multer from 'multer';
 import compression from 'compression';
 import validator from 'validator';
-import { restResponseTimeHistogram, startMetricsServer } from "./utils/metrics";
+import {restResponseTimeHistogram, startMetricsServer} from "./utils/metrics";
 import swaggerDocs from "./utils/swagger";
 
 // Connect to MongoDB
 connectDB();
-
-// custom middleware logger
-app.use(logger);
 
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirement
@@ -38,8 +38,8 @@ app.use(credentials);
 app.use(cors(corsOptions));
 
 // built-in middleware to handle urlencoded form data
-app.use(express.urlencoded({ extended: false, limit: '30kb' }));
-app.use(express.json({ limit: '30kb' }));
+app.use(express.urlencoded({extended: false, limit: '30kb'}));
+app.use(express.json({limit: '30kb'}));
 
 // built-in middleware for json
 app.use(express.json());
@@ -92,21 +92,40 @@ app.use('/api', apiLimiter);
 // app.use('/employees', require('./routes/api/employees'));
 // app.use('/users', require('./routes/api/users'));
 
+app.use(errorHandler);
+
 app.all('*', (req: Request, res: Response) => {
   res.status(404);
   if (req.accepts('html')) {
-    res.json({ "error": "404 Not Found" });
+    res.json({"error": "404 Not Found"});
     // res.sendFile(path.join(__dirname, 'views', '404.html'));
   } else if (req.accepts('json')) {
-    res.json({ "error": "404 Not Found" });
+    res.json({"error": "404 Not Found"});
   } else {
     res.type('txt').send("404 Not Found");
   }
 });
 
-app.use(errorHandler);
+app.use(
+  responseTime((req: Request, res: Response, time: number) => {
+    if (req?.route?.path) {
+      restResponseTimeHistogram.observe(
+        {
+          method: req.method,
+          route: req.route.path,
+          status_code: res.statusCode,
+        },
+        time * 1000
+      );
+    }
+  })
+);
 
 mongoose.connection.once('open', () => {
   console.log('Connected to MongoDB');
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+    startMetricsServer();
+    swaggerDocs(app, PORT);
+  });
 });

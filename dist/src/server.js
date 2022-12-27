@@ -10,20 +10,20 @@ const app = (0, express_1.default)();
 const path_1 = __importDefault(require("path"));
 const cors_1 = __importDefault(require("cors"));
 const corsOptions_1 = __importDefault(require("./utils/corsOptions"));
-const logEvents_1 = require("./middleware/logEvents");
 const errorHandler_1 = __importDefault(require("./middleware/errorHandler"));
 const dbConnect_1 = __importDefault(require("./utils/dbConnect"));
 const credentials_1 = __importDefault(require("./middleware/credentials"));
+const response_time_1 = __importDefault(require("response-time"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const mongoose_1 = __importDefault(require("mongoose"));
-const PORT = process.env.PORT || 3500;
+const PORT = Number(process.env.PORT) || 3500;
 const morgan_1 = __importDefault(require("morgan"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const helmet_1 = __importDefault(require("helmet"));
+const metrics_1 = require("./utils/metrics");
+const swagger_1 = __importDefault(require("./utils/swagger"));
 // Connect to MongoDB
 (0, dbConnect_1.default)();
-// custom middleware logger
-app.use(logEvents_1.logger);
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirement
 app.use(credentials_1.default);
@@ -71,6 +71,7 @@ app.use('/api', apiLimiter);
 // app.use(verifyJWT);
 // app.use('/employees', require('./routes/api/employees'));
 // app.use('/users', require('./routes/api/users'));
+app.use(errorHandler_1.default);
 app.all('*', (req, res) => {
     res.status(404);
     if (req.accepts('html')) {
@@ -84,9 +85,22 @@ app.all('*', (req, res) => {
         res.type('txt').send("404 Not Found");
     }
 });
-app.use(errorHandler_1.default);
+app.use((0, response_time_1.default)((req, res, time) => {
+    var _a;
+    if ((_a = req === null || req === void 0 ? void 0 : req.route) === null || _a === void 0 ? void 0 : _a.path) {
+        metrics_1.restResponseTimeHistogram.observe({
+            method: req.method,
+            route: req.route.path,
+            status_code: res.statusCode,
+        }, time * 1000);
+    }
+}));
 mongoose_1.default.connection.once('open', () => {
     console.log('Connected to MongoDB');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+        (0, metrics_1.startMetricsServer)();
+        (0, swagger_1.default)(app, PORT);
+    });
 });
 //# sourceMappingURL=server.js.map
