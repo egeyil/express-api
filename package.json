@@ -2,12 +2,11 @@
   "name": "express-api",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/server.js",
-  "type": "module",
+  "main": "dist/src/server.js",
   "scripts": {
-    "build": "npx tsc",
-    "start": "node dist/index.js",
-    "dev": "tsc -w & nodemon src/server",
+    "build": "tsc",
+    "start": "node dist/src/index.js",
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/src/index.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -75,7 +74,9 @@
     "@types/response-time": "^2.3.5",
     "@types/swagger-jsdoc": "^6.0.1",
     "@types/swagger-ui-express": "^4.1.3",
+    "@types/uuid": "^9.0.0",
     "@types/validator": "^13.7.10",
+    "concurrently": "^7.6.0",
     "nodemon": "^2.0.20",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.9.4"

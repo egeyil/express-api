@@ -1,7 +1,7 @@
 import allowedOrigins from '../config/allowedOrigins.js';
 
 const corsOptions = {
-  origin: (origin, callback) => {
+  origin: (origin: string, callback: Function) => {
     // Remove !origin in production
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
       callback(null, true)
