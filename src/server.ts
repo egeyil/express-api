@@ -28,6 +28,9 @@ const PORT = Number(process.env.PORT) || 3500;
 // Connect to MongoDB
 connectDB();
 
+// Compress all responses
+app.use(compression());
+
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirement
 app.use(credentials);
@@ -50,6 +53,9 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 
 // Set security HTTP headers
 app.use(helmet());
+
+// Prevent http param pollution
+app.use(hpp());
 
 // Data sanitization against XSS
 //app.use(xss());

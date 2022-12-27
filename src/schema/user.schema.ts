@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PostSchema } from './post.schema';
+import { PostSchema} from './post.schema';
 
 export const UserSchema = z.object({
   username: z.string().trim().min(3).max(20),
