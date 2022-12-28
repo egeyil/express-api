@@ -1,7 +1,8 @@
 import express, {Request, Response, NextFunction} from "express";
 import {z, AnyZodObject} from "zod";
 
-const validateAndSanitize = (schema: AnyZodObject, payloadType: string) => {
+
+const validate = (schema: AnyZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await schema.parseAsync({
@@ -15,3 +16,5 @@ const validateAndSanitize = (schema: AnyZodObject, payloadType: string) => {
     }
   }
 }
+
+export default validate;
