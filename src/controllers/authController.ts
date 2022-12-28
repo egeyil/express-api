@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import User, {UserInput} from '../model/User.model';
 import bcrypt from 'bcrypt';
-import isEmail from "validator/es/lib/isEmail";
+import isEmail from "validator/lib/isEmail";
 import {signJwt, verifyJwt} from "../utils/jwt.utils";
 
 export const handleLogin = async (req: Request, res: Response) => {
@@ -51,7 +51,7 @@ export const handleLogin = async (req: Request, res: Response) => {
     // Creates Secure Cookie with refresh token
     res.cookie(process.env.APP_NAME || 'REFRESH_TOKEN', refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       sameSite: 'none',
       maxAge: 24 * 60 * 60 * 1000
     });
@@ -59,6 +59,7 @@ export const handleLogin = async (req: Request, res: Response) => {
     // Send authorization roles and access token to user
     res.json({roles, accessToken});
   } catch (e) {
+    console.log(e)
     return res.status(500).json({message: "Internal server error"});
   }
 }

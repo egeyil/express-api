@@ -1,22 +1,20 @@
 import express from 'express';
-import {handleLogin} from '../controllers/authController';
+import {handleLogin, handleRegister} from '../controllers/authController';
 import validate from "../middleware/validate";
 import deserializeUser from "../middleware/deserializeUser";
-import { UserSchema } from "../schema/user.schema";
+import {LoginSchema, RegisterSchema} from "../schema/user.schema";
 
 const router = express.Router();
 
-// router.post(
-//   '/register',
-//   validateRegister(),
-//   validate,
-//   authController.register,
-//   authController.createAndSendToken
-// );
+router.post(
+  '/register',
+  validate(RegisterSchema),
+  handleRegister,
+);
 
 router.post(
   '/login',
-  validate(UserSchema),
+  validate(LoginSchema),
   handleLogin,
 );
 
@@ -30,4 +28,4 @@ router.post(
 // router.use(authController.protect);
 // router.patch('/resetPassword', authController.resetPassword);
 
-module.exports = router;
+export default router;

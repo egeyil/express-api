@@ -12,7 +12,6 @@ export function signJwt(object: Object, secret: string, options?: jwt.SignOption
 
   return jwt.sign(object, signingKey, {
     ...(options && options),
-    algorithm: "RS256",
   });
 }
 

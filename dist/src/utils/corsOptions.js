@@ -6,12 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const allowedOrigins_js_1 = __importDefault(require("../config/allowedOrigins.js"));
 const corsOptions = {
     origin: (origin, callback) => {
-        // Remove !origin in production
-        if (allowedOrigins_js_1.default.indexOf(origin) !== -1 || !origin) {
-            callback(null, true);
+        // Remove !origin if you do not want to allow requests with no origin (Server-to-server requests or local tools)
+        if (origin && allowedOrigins_js_1.default.indexOf(origin) !== -1 || !origin) {
+            return callback(null, true);
         }
         else {
-            callback(new Error('Not allowed by CORS'));
+            return callback(new Error('Not allowed by CORS'));
         }
     },
     optionsSuccessStatus: 200

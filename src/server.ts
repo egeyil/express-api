@@ -79,24 +79,11 @@ app.use('/api', apiLimiter);
 
 
 /* ***** ROUTES ***** */
+// Import all routes
+import auth from './routes/auth';
 
-// const auth = require('./routes/auth');
-// const feed = require('./routes/feed');
-// const user = require('./routes/user');
-// const book = require('./routes/book');
-
-/* ****************** */
-
-// routes
-// app.use('/', require('./routes/root'));
-// app.use('/register', require('./routes/register'));
-// app.use('/auth', require('./routes/auth'));
-// app.use('/refresh', require('./routes/refresh'));
-// app.use('/logout', require('./routes/logout'));
-//
-// app.use(verifyJWT);
-// app.use('/employees', require('./routes/api/employees'));
-// app.use('/users', require('./routes/api/users'));
+// Mount routers
+app.use('/api/auth', auth);
 
 app.use(errorHandler);
 
