@@ -49,7 +49,7 @@ export const handleLogin = async (req: Request, res: Response) => {
     console.log(result);
 
     // Creates Secure Cookie with refresh token
-    res.cookie(process.env.APP_NAME || 'REFRESH_TOKEN', refreshToken, {
+    res.cookie(`${process.env.APP_NAME}_REFRESH_TOKEN` || 'REFRESH_TOKEN', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: 'none',

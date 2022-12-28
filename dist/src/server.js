@@ -15,7 +15,6 @@ const dbConnect_1 = __importDefault(require("./utils/dbConnect"));
 const credentials_1 = __importDefault(require("./middleware/credentials"));
 const response_time_1 = __importDefault(require("response-time"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
-const mongoose_1 = __importDefault(require("mongoose"));
 const morgan_1 = __importDefault(require("morgan"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const helmet_1 = __importDefault(require("helmet"));
@@ -83,8 +82,7 @@ app.all('*', (req, res) => {
     }
 });
 app.use((0, response_time_1.default)((req, res, time) => {
-    var _a;
-    if ((_a = req === null || req === void 0 ? void 0 : req.route) === null || _a === void 0 ? void 0 : _a.path) {
+    if (req?.route?.path) {
         metrics_1.restResponseTimeHistogram.observe({
             method: req.method,
             route: req.route.path,
@@ -92,12 +90,11 @@ app.use((0, response_time_1.default)((req, res, time) => {
         }, time * 1000);
     }
 }));
-mongoose_1.default.connection.once('open', () => {
+app.listen(PORT, async () => {
+    console.log(`Server running on port ${PORT}`);
+    await (0, dbConnect_1.default)();
     console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-        (0, metrics_1.startMetricsServer)();
-        (0, swagger_1.default)(app, PORT);
-    });
+    (0, metrics_1.startMetricsServer)();
+    (0, swagger_1.default)(app, PORT);
 });
 //# sourceMappingURL=server.js.map

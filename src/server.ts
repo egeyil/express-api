@@ -114,11 +114,13 @@ app.use(
   })
 );
 
-mongoose.connection.once('open', () => {
+app.listen(PORT, async () => {
+  console.log(`Server running on port ${PORT}`)
+
+  await connectDB();
   console.log('Connected to MongoDB');
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
-    startMetricsServer();
-    swaggerDocs(app, PORT);
-  });
+
+  startMetricsServer();
+
+  swaggerDocs(app, PORT);
 });

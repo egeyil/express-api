@@ -33,7 +33,9 @@ const process = __importStar(require("process"));
 // Create secrets with require('crypto').randomBytes(64).toString('hex')
 function signJwt(object, secret, options) {
     const signingKey = Buffer.from(process.env[secret] || "", "base64").toString("ascii");
-    return jsonwebtoken_1.default.sign(object, signingKey, Object.assign({}, (options && options)));
+    return jsonwebtoken_1.default.sign(object, signingKey, {
+        ...(options && options),
+    });
 }
 exports.signJwt = signJwt;
 function verifyJwt(token, keyName) {

@@ -5,8 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const allowedOrigins_1 = __importDefault(require("../config/allowedOrigins"));
 const credentials = (req, res, next) => {
-    var _a;
-    const origin = (_a = req.headers) === null || _a === void 0 ? void 0 : _a.origin;
+    const origin = req.headers?.origin;
     if (origin && allowedOrigins_1.default.includes(origin)) {
         res.header('Access-Control-Allow-Credentials', 'true');
     }

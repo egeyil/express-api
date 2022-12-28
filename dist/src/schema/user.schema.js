@@ -24,5 +24,7 @@ exports.LoginSchema = zod_1.z.object({
         password: zod_1.z.string().trim().min(6).max(25),
     }),
 });
-exports.RegisterSchema = zod_1.z.object(Object.assign({}, exports.UserSchema));
+exports.RegisterSchema = zod_1.z.object({
+    ...exports.UserSchema,
+});
 //# sourceMappingURL=user.schema.js.map

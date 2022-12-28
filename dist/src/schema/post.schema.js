@@ -16,9 +16,21 @@ exports.PostParams = {
         }).min(1),
     })
 };
-exports.PostSchema = zod_1.z.object(Object.assign(Object.assign({}, exports.PostPayload), exports.PostParams));
-exports.CreatePostSchema = zod_1.z.object(Object.assign({}, exports.PostPayload));
-exports.UpdatePostSchema = zod_1.z.object(Object.assign(Object.assign({}, exports.PostPayload), exports.PostParams));
-exports.DeletePostSchema = zod_1.z.object(Object.assign({}, exports.PostParams));
-exports.GetPostSchema = zod_1.z.object(Object.assign({}, exports.PostParams));
+exports.PostSchema = zod_1.z.object({
+    ...exports.PostPayload,
+    ...exports.PostParams,
+});
+exports.CreatePostSchema = zod_1.z.object({
+    ...exports.PostPayload,
+});
+exports.UpdatePostSchema = zod_1.z.object({
+    ...exports.PostPayload,
+    ...exports.PostParams
+});
+exports.DeletePostSchema = zod_1.z.object({
+    ...exports.PostParams
+});
+exports.GetPostSchema = zod_1.z.object({
+    ...exports.PostParams
+});
 //# sourceMappingURL=post.schema.js.map

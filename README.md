@@ -19,8 +19,15 @@ Has support for CRUD operations, authentication with JWT, authorization with use
 -  Swagger for API documentation
 -  Docker
 -  CRUD 
--  Authentication with JWT
+-  Security best practices with Zod, Helmet, Validator, XSS, CORS, JWT and more
+-  Authentication (JWT) with access and refresh tokens
+-  When logged in, you receive a JWT access and refresh token, and then you can use the access token to access protected routes, and the refresh token to get a new access token when the current one expires
 -  Authorization with user roles
 
 ### API Endpoints
+
+#### Authentication
+
+-  POST /api/auth/register
+-  POST /api/auth/login
 
