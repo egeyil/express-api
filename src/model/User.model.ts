@@ -5,13 +5,14 @@ import bcrypt from "bcrypt";
 
 export interface UserInput {
   email: string;
-  name: string;
+  username: string;
   password: string;
   roles?: {
     User?: number,
     Editor?: number,
     Admin?: number
   };
+  refreshToken?: string;
 }
 
 export interface UserDocument extends UserInput, mongoose.Document {
@@ -36,6 +37,7 @@ const userSchema = new mongoose.Schema(
       Admin: Number
     },
     posts: [{type: Schema.Types.ObjectId, ref: 'Post'}],
+    refreshToken: String
   },
   {
     timestamps: true,

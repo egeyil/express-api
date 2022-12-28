@@ -1,9 +1,12 @@
 import jwt from "jsonwebtoken";
 import config from "config";
+import * as process from "process";
 
-export function signJwt(object: Object, keyName: "accessTokenPrivateKey" | "refreshTokenPrivateKey", options?: jwt.SignOptions | undefined) {
+// Create secrets with require('crypto').randomBytes(64).toString('hex')
+
+export function signJwt(object: Object, secret: string, options?: jwt.SignOptions | undefined) {
   const signingKey = Buffer.from(
-    config.get<string>(keyName),
+    process.env[secret] || "",
     "base64"
   ).toString("ascii");
 
