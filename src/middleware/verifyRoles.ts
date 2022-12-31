@@ -1,5 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 
+// This middleware is used to authorize a user based on the roles they have.
 const verifyRoles = (...allowedRoles: [number]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req?.body?.JWT_roles) return res.sendStatus(401);

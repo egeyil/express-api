@@ -7,6 +7,7 @@ import {NextFunction, Request, Response} from "express";
 import * as process from "process";
 const fsPromises = fs.promises;
 
+// This middleware is used to log events and errors to a file
 export const logEvents = async (message: string, logName: string) => {
   const dateTime = `${format(new Date(), 'yyyyMMdd\tHH:mm:ss')}`;
   const logItem = `${dateTime}\t${uuid()}\t${message}\n`;

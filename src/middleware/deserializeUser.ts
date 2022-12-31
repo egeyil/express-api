@@ -2,6 +2,7 @@ import {get} from "lodash";
 import {Request, Response, NextFunction} from "express";
 import {verifyJwt} from "../utils/jwt.utils";
 
+// This middleware is used to deserialize the user from the JWT, and attach it to the res.locals object
 const deserializeUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const accessToken = req.cookies;

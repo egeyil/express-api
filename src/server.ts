@@ -81,9 +81,11 @@ app.use('/api', apiLimiter);
 /* ***** ROUTES ***** */
 // Import all routes
 import auth from './routes/auth';
+import posts from './routes/post';
 
 // Mount routers
 app.use('/api/auth', auth);
+app.use('/api/posts', posts);
 
 app.use(errorHandler);
 
