@@ -47,8 +47,20 @@ export const handleLogin = async (req: Request, res: Response) => {
       maxAge: 24 * 60 * 60 * 1000
     });
 
+    res.cookie(accessTokenName, accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: 'none',
+      maxAge: 60 * 60 * 1000
+    })
+
     // Send authorization roles and access token to user
-    res.json({roles, accessToken});
+    res.json({
+      roles: foundUser.roles,
+      username: foundUser.username,
+      email: foundUser.email,
+      posts: foundUser.posts,
+    });
   } catch (e) {
     console.log(e)
     return res.status(500).json({message: "Internal server error"});
@@ -61,9 +73,12 @@ export const handleRegister = async (req: Request, res: Response) => {
     if (!username || !displayName || !email || !password) return res.status(400).json({'message': 'Username, displayName, email and password are required.'});
     if (password !== confirmPassword) return res.status(400).json({'message': 'Passwords do not match.'});
 
-    // check for duplicate usernames in the db
-    const duplicate = await User.findOne({username: username}).exec();
-    if (duplicate) return res.status(409).json({message:"A user with this username already exists."}); //Conflict
+    // check for duplicate usernames/emails in the db
+    const duplicateUser = await User.findOne({$or: [{username: username}, {email: email}]}).exec();
+    if (duplicateUser) {
+      let duplicateError = duplicateUser.username === username ? 'username' : 'email';
+      return res.status(409).json({message: `A user with this ${duplicateError} already exists.`}); //Conflict
+    }
 
     //encrypt the password
     const salt = await bcrypt.genSalt();
@@ -82,6 +97,7 @@ export const handleRegister = async (req: Request, res: Response) => {
 
     res.status(201).json({message: "User created successfully.", user: {createdUser}});
   } catch (e) {
+    console.log(e)
     return res.status(500).json({message: "Something went wrong."});
   }
 }

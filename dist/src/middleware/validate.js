@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+// This middleware is used to validate the request against a schema that will be passed in when calling the function.
 const validate = (schema) => {
     return async (req, res, next) => {
         try {

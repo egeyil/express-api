@@ -1,61 +1,34 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyJwt = exports.signJwt = void 0;
+exports.issueRefreshToken = exports.issueAccessToken = exports.verifyJwt = exports.signJwt = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const config_1 = __importDefault(require("config"));
-const process = __importStar(require("process"));
+const globalVariables_1 = require("../config/globalVariables");
 // Create secrets with require('crypto').randomBytes(64).toString('hex')
 function signJwt(object, secret, options) {
-    const signingKey = Buffer.from(process.env[secret] || "", "base64").toString("ascii");
-    return jsonwebtoken_1.default.sign(object, signingKey, {
+    return jsonwebtoken_1.default.sign(object, secret, {
         ...(options && options),
     });
 }
 exports.signJwt = signJwt;
-function verifyJwt(token, keyName) {
-    const publicKey = Buffer.from(config_1.default.get(keyName), "base64").toString("ascii");
-    try {
-        const decoded = jsonwebtoken_1.default.verify(token, publicKey);
-        return {
-            valid: true,
-            expired: false,
-            decoded,
-        };
-    }
-    catch (e) {
-        console.error(e);
-        return {
-            valid: false,
-            expired: e.message === "jwt expired",
-            decoded: null,
-        };
-    }
+function verifyJwt(token, secret, options) {
+    return jsonwebtoken_1.default.verify(token, secret);
 }
 exports.verifyJwt = verifyJwt;
+function issueAccessToken(user) {
+    return signJwt({
+        username: user.username,
+        email: user.email,
+        roles: user.roles && Object.values(user.roles).filter(Boolean),
+    }, globalVariables_1.accessTokenName, { expiresIn: "15m" });
+}
+exports.issueAccessToken = issueAccessToken;
+function issueRefreshToken(user) {
+    return signJwt({
+        username: user.username,
+    }, globalVariables_1.accessTokenName, { expiresIn: "90d" });
+}
+exports.issueRefreshToken = issueRefreshToken;
 //# sourceMappingURL=jwt.utils.js.map

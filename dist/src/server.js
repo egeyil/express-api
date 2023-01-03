@@ -55,18 +55,29 @@ if (process.env.NODE_ENV === 'development') {
 }
 // Limit requests from same IP to 150 per hour for API Routes
 const apiLimiter = (0, express_rate_limit_1.default)({
-    max: 150,
-    windowMs: 60 * 60 * 1000,
+    max: 200,
+    windowMs: 10 * 60 * 1000,
     message: 'Too many requests from this IP, please try again in 15 minutes!',
     standardHeaders: true,
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 app.use('/api', apiLimiter);
+// Limit requests from same IP to 150 per hour for API/AUTH Routes
+const authLimiter = (0, express_rate_limit_1.default)({
+    max: 40,
+    windowMs: 10 * 60 * 1000,
+    message: 'Too many requests from this IP, please try again in 15 minutes!',
+    standardHeaders: true,
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+app.use('/api/auth', authLimiter);
 /* ***** ROUTES ***** */
 // Import all routes
 const auth_1 = __importDefault(require("./routes/auth"));
+const post_1 = __importDefault(require("./routes/post"));
 // Mount routers
 app.use('/api/auth', auth_1.default);
+app.use('/api/posts', post_1.default);
 app.use(errorHandler_1.default);
 app.all('*', (req, res) => {
     res.status(404);

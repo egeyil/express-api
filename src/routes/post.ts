@@ -1,7 +1,7 @@
 import express from 'express';
 import {handleGetPosts, handleGetPost, handleUpdatePost, handleDeletePost, handleCreatePost} from '../controllers/postController';
 import validate from "../middleware/validate";
-import deserializeUser from "../middleware/deserializeUser";
+import deserializeUser from "../middleware/protect";
 import { PostSchema } from "../schema/post.schema";
 
 const router = express.Router();

@@ -33,6 +33,7 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const process = __importStar(require("process"));
 const fsPromises = fs_1.default.promises;
+// This middleware is used to log events and errors to a file
 const logEvents = async (message, logName) => {
     const dateTime = `${(0, date_fns_1.format)(new Date(), 'yyyyMMdd\tHH:mm:ss')}`;
     const logItem = `${dateTime}\t${(0, uuid_1.v4)()}\t${message}\n`;

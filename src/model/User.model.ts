@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
+import {PostDocument} from "./Post.model";
 
 const Schema = mongoose.Schema;
-import bcrypt from "bcrypt";
 
 export interface UserInput {
   email: string;
@@ -12,6 +12,7 @@ export interface UserInput {
     Editor?: number,
     Admin?: number
   };
+  posts?: PostDocument[];
   refreshToken?: string;
 }
 
@@ -25,7 +26,7 @@ export interface UserDocument extends UserInput, mongoose.Document {
 const userSchema = new mongoose.Schema(
   {
     email: {type: String, required: true, unique: true},
-    username: {type: String, required: true},
+    username: {type: String, required: true, unique: true},
     displayName: {type: String, required: true},
     password: {type: String, required: true},
     roles: {
@@ -43,14 +44,6 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-userSchema.methods.comparePassword = async function (
-  candidatePassword: string
-): Promise<boolean> {
-  const user = this as UserDocument;
-
-  return bcrypt.compare(candidatePassword, user.password).catch((e) => false);
-};
 
 const User = mongoose.model<UserDocument>("User", userSchema);
 

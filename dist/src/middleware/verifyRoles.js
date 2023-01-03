@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+// This middleware is used to authorize a user based on the roles they have.
 const verifyRoles = (...allowedRoles) => {
     return (req, res, next) => {
         if (!req?.body?.JWT_roles)
