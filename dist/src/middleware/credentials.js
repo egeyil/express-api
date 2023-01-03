@@ -7,7 +7,7 @@ const allowedOrigins_1 = __importDefault(require("../config/allowedOrigins"));
 // This middleware is used to set the CORS headers
 const credentials = (req, res, next) => {
     const origin = req.headers?.origin;
-    if (origin && allowedOrigins_1.default.includes(origin)) {
+    if ((origin && allowedOrigins_1.default.includes(origin)) || !origin) {
         res.header('Access-Control-Allow-Credentials', 'true');
     }
     next();

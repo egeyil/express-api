@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import isEmail from "validator/lib/isEmail";
 import {issueAccessToken, issueRefreshToken, signJwt, verifyJwt} from "../utils/jwt.utils";
 import * as process from "process";
-import { accessTokenName, refreshTokenName} from "../config/globalVariables";
+import {accessTokenName, refreshTokenName} from "../config/globalVariables";
 
 export const handleLogin = async (req: Request, res: Response) => {
   try {
@@ -44,22 +44,25 @@ export const handleLogin = async (req: Request, res: Response) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: 'none',
-      maxAge: 24 * 60 * 60 * 1000
+      maxAge: 90 * 24 * 60 * 60 * 1000 // 90 days
     });
 
     res.cookie(accessTokenName, accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: 'none',
-      maxAge: 60 * 60 * 1000
+      maxAge: 60 * 60 * 1000 // 1 hour
     })
 
     // Send authorization roles and access token to user
     res.json({
-      roles: foundUser.roles,
-      username: foundUser.username,
-      email: foundUser.email,
-      posts: foundUser.posts,
+      message: "Login successful",
+      user: {
+        roles: foundUser.roles,
+        username: foundUser.username,
+        email: foundUser.email,
+        posts: foundUser.posts,
+      }
     });
   } catch (e) {
     console.log(e)
@@ -106,13 +109,13 @@ export const handleLogout = async (req: Request, res: Response) => {
   try {
     // On client, also delete the accessToken
     const cookies = req.cookies;
-    if (!cookies || cookies[refreshTokenName]) return res.sendStatus(204); //No content
+    if (!cookies || !cookies[refreshTokenName]) return res.status(400).json({message: "No cookies found."}); //No content
     const refreshToken = cookies[refreshTokenName];
 
     // Is refreshToken in db?
     const foundUser = await User.findOne({refreshToken}).exec();
     if (!foundUser) {
-      res.clearCookie(refreshTokenName, {httpOnly: true, sameSite: 'none', secure: true});
+      res.clearCookie(refreshTokenName, {httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === "production"});
       return res.status(204).json({message: "User not found."});
     }
 
@@ -121,8 +124,17 @@ export const handleLogout = async (req: Request, res: Response) => {
     const result = await foundUser.save();
     console.log(result);
 
-    res.clearCookie(refreshTokenName, {httpOnly: true, sameSite: 'none', secure: true});
-    res.status(204).json({message: "User logged out successfully."});
+    res.clearCookie(refreshTokenName, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: 'none',
+    })
+    res.clearCookie(accessTokenName, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: 'none',
+    });
+    res.status(200).json({message: "User logged out successfully."});
   } catch (err) {
     console.log(err);
     return res.status(500).json({message: "Internal server error"});

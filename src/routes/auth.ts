@@ -20,7 +20,6 @@ router.post(
 
 // GET /api/auth/logout
 router.get('/logout',
-  deserializeUser,
   handleLogout
 );
 

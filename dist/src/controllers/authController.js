@@ -68,20 +68,23 @@ const handleLogin = async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: 'none',
-            maxAge: 24 * 60 * 60 * 1000
+            maxAge: 90 * 24 * 60 * 60 * 1000 // 90 days
         });
         res.cookie(globalVariables_1.accessTokenName, accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: 'none',
-            maxAge: 60 * 60 * 1000
+            maxAge: 60 * 60 * 1000 // 1 hour
         });
         // Send authorization roles and access token to user
         res.json({
-            roles: foundUser.roles,
-            username: foundUser.username,
-            email: foundUser.email,
-            posts: foundUser.posts,
+            message: "Login successful",
+            user: {
+                roles: foundUser.roles,
+                username: foundUser.username,
+                email: foundUser.email,
+                posts: foundUser.posts,
+            }
         });
     }
     catch (e) {
@@ -127,21 +130,30 @@ const handleLogout = async (req, res) => {
     try {
         // On client, also delete the accessToken
         const cookies = req.cookies;
-        if (!cookies || cookies[globalVariables_1.refreshTokenName])
-            return res.sendStatus(204); //No content
+        if (!cookies || !cookies[globalVariables_1.refreshTokenName])
+            return res.status(400).json({ message: "No cookies found." }); //No content
         const refreshToken = cookies[globalVariables_1.refreshTokenName];
         // Is refreshToken in db?
         const foundUser = await User_model_1.default.findOne({ refreshToken }).exec();
         if (!foundUser) {
-            res.clearCookie(globalVariables_1.refreshTokenName, { httpOnly: true, sameSite: 'none', secure: true });
+            res.clearCookie(globalVariables_1.refreshTokenName, { httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === "production" });
             return res.status(204).json({ message: "User not found." });
         }
         // Delete refreshToken in db
         foundUser.refreshToken = undefined;
         const result = await foundUser.save();
         console.log(result);
-        res.clearCookie(globalVariables_1.refreshTokenName, { httpOnly: true, sameSite: 'none', secure: true });
-        res.status(204).json({ message: "User logged out successfully." });
+        res.clearCookie(globalVariables_1.refreshTokenName, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: 'none',
+        });
+        res.clearCookie(globalVariables_1.accessTokenName, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: 'none',
+        });
+        res.status(200).json({ message: "User logged out successfully." });
     }
     catch (err) {
         console.log(err);

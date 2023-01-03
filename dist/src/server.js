@@ -7,8 +7,6 @@ const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const app = (0, express_1.default)();
 const path_1 = __importDefault(require("path"));
-const cors_1 = __importDefault(require("cors"));
-const corsOptions_1 = __importDefault(require("./utils/corsOptions"));
 const logEvents_1 = require("./middleware/logEvents");
 const errorHandler_1 = __importDefault(require("./middleware/errorHandler"));
 const dbConnect_1 = __importDefault(require("./utils/dbConnect"));
@@ -32,7 +30,7 @@ app.use((0, compression_1.default)());
 // and fetch cookies credentials requirement
 app.use(credentials_1.default);
 // Cross Origin Resource Sharing
-app.use((0, cors_1.default)(corsOptions_1.default));
+// app.use(cors(corsOptions));
 // built-in middleware to handle urlencoded form data
 app.use(express_1.default.urlencoded({ extended: false, limit: '30kb' }));
 app.use(express_1.default.json({ limit: '30kb' }));

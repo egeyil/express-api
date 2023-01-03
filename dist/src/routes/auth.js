@@ -6,13 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const authController_1 = require("../controllers/authController");
 const validate_1 = __importDefault(require("../middleware/validate"));
-const protect_1 = __importDefault(require("../middleware/protect"));
 const user_schema_1 = require("../schema/user.schema");
 const router = express_1.default.Router();
 router.post('/register', (0, validate_1.default)(user_schema_1.RegisterSchema), authController_1.handleRegister);
 router.post('/login', (0, validate_1.default)(user_schema_1.LoginSchema), authController_1.handleLogin);
 // GET /api/auth/logout
-router.get('/logout', protect_1.default, authController_1.handleLogout);
+router.get('/logout', authController_1.handleLogout);
 // POST /api/auth/forgotPassword
 // router.post('/forgotPassword', authController.forgotPassword);
 // Protect all routes after this middleware
