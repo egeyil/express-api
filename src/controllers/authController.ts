@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 import User, {UserInput} from '../model/User.model';
 import bcrypt from 'bcrypt';
 import isEmail from "validator/lib/isEmail";
-import {signJwt, verifyJwt} from "../utils/jwt.utils";
+import {issueAccessToken, issueRefreshToken, signJwt, verifyJwt} from "../utils/jwt.utils";
 import * as process from "process";
 import { accessTokenName, refreshTokenName} from "../config/globalVariables";
 
@@ -31,19 +31,8 @@ export const handleLogin = async (req: Request, res: Response) => {
     const roles = foundUser.roles && Object.values(foundUser.roles).filter(Boolean);
 
     // create JWTs
-    const accessToken = signJwt({
-      UserInfo: {
-        username: foundUser.username,
-        email: foundUser.email,
-        roles: roles,
-      }
-    }, accessTokenName, {expiresIn: "15m"});
-
-    const refreshToken = signJwt({
-      UserInfo: {
-        username: foundUser.username,
-      },
-    }, refreshTokenName, {expiresIn: '90d'});
+    const accessToken = issueAccessToken(foundUser)
+    const refreshToken = issueRefreshToken(foundUser);
 
     // Saving refreshToken with current user
     foundUser.refreshToken = refreshToken;
@@ -112,7 +101,7 @@ export const handleLogout = async (req: Request, res: Response) => {
     }
 
     // Delete refreshToken in db
-    foundUser.refreshToken = '';
+    foundUser.refreshToken = undefined;
     const result = await foundUser.save();
     console.log(result);
 
