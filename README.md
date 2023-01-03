@@ -7,7 +7,7 @@ with JWT, authorization with user roles.
 
 ### Features
 
-- Express.js
+- Node.js & Express.js
 - Typescript
 - MongoDB
 - Mongoose
@@ -16,13 +16,12 @@ with JWT, authorization with user roles.
 - Error and Request logging to console and files
 - Swagger for API documentation
 - CRUD
+- Rate limiting
 - Security best practices with packages like Zod, Helmet, Validator, XSS, CORS, JWT and more
 - Authentication (JWT) with access and refresh tokens
-- When logged in, you receive a JWT access and refresh token, and then you can use the access token to access protected
-  routes, and the refresh token to get a new access token when the current one expires
 - Authorization with user roles
 
-### Features to be added
+### Features to be added in the future
 
 - Docker
 - Redis for caching

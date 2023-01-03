@@ -3,6 +3,8 @@ import User, {UserInput} from '../model/User.model';
 import bcrypt from 'bcrypt';
 import isEmail from "validator/lib/isEmail";
 import {signJwt, verifyJwt} from "../utils/jwt.utils";
+import * as process from "process";
+import { accessTokenName, refreshTokenName} from "../config/globalVariables";
 
 export const handleLogin = async (req: Request, res: Response) => {
   try {
@@ -35,13 +37,13 @@ export const handleLogin = async (req: Request, res: Response) => {
         email: foundUser.email,
         roles: roles,
       }
-    }, "ACCESS_TOKEN_SECRET", {expiresIn: "15m"});
+    }, accessTokenName, {expiresIn: "15m"});
 
     const refreshToken = signJwt({
       UserInfo: {
         username: foundUser.username,
       },
-    }, "REFRESH_TOKEN_SECRET", {expiresIn: '90d'});
+    }, refreshTokenName, {expiresIn: '90d'});
 
     // Saving refreshToken with current user
     foundUser.refreshToken = refreshToken;
@@ -49,7 +51,7 @@ export const handleLogin = async (req: Request, res: Response) => {
     console.log(result);
 
     // Creates Secure Cookie with refresh token
-    res.cookie(`${process.env.APP_NAME}_REFRESH_TOKEN` || 'REFRESH_TOKEN', refreshToken, {
+    res.cookie(refreshTokenName, refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: 'none',
@@ -92,5 +94,32 @@ export const handleRegister = async (req: Request, res: Response) => {
     res.status(201).json({message: "User created successfully.", user: {createdUser}});
   } catch (e) {
     return res.status(500).json({message: "Something went wrong."});
+  }
+}
+
+export const handleLogout = async (req: Request, res: Response) => {
+  try {
+    // On client, also delete the accessToken
+    const cookies = req.cookies;
+    if (!cookies || cookies[refreshTokenName]) return res.sendStatus(204); //No content
+    const refreshToken = cookies[refreshTokenName];
+
+    // Is refreshToken in db?
+    const foundUser = await User.findOne({refreshToken}).exec();
+    if (!foundUser) {
+      res.clearCookie(refreshTokenName, {httpOnly: true, sameSite: 'none', secure: true});
+      return res.sendStatus(204);
+    }
+
+    // Delete refreshToken in db
+    foundUser.refreshToken = '';
+    const result = await foundUser.save();
+    console.log(result);
+
+    res.clearCookie(refreshTokenName, {httpOnly: true, sameSite: 'none', secure: true});
+    res.sendStatus(204);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({message: "Internal server error"});
   }
 }

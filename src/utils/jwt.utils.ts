@@ -4,9 +4,9 @@ import * as process from "process";
 
 // Create secrets with require('crypto').randomBytes(64).toString('hex')
 
-export function signJwt(object: Object, secret: string, options?: jwt.SignOptions | undefined) {
+export function signJwt(object: Object, keyName: string, options?: jwt.SignOptions | undefined) {
   const signingKey = Buffer.from(
-    process.env[secret] || "",
+    process.env[keyName] || "",
     "base64"
   ).toString("ascii");
 
@@ -15,12 +15,11 @@ export function signJwt(object: Object, secret: string, options?: jwt.SignOption
   });
 }
 
-export function verifyJwt(token: string, keyName: "accessTokenPublicKey" | "refreshTokenPublicKey") {
-  const publicKey = Buffer.from(config.get<string>(keyName), "base64").toString(
-    "ascii"
-  );
-
+export function verifyJwt(token: string, keyName: string, options?: jwt.VerifyOptions | undefined) {
   try {
+    const publicKey = Buffer.from(process.env[keyName] || '', "base64").toString(
+      "ascii"
+    );
     const decoded = jwt.verify(token, publicKey);
     return {
       valid: true,

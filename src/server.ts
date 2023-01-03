@@ -10,7 +10,6 @@ import connectDB from './utils/dbConnect';
 import credentials from './middleware/credentials';
 import responseTime from "response-time";
 import cookieParser from 'cookie-parser';
-import mongoose from 'mongoose';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
@@ -69,13 +68,23 @@ if (process.env.NODE_ENV === 'development') {
 
 // Limit requests from same IP to 150 per hour for API Routes
 const apiLimiter = rateLimit({
-  max: 150,
-  windowMs: 60 * 60 * 1000, // Limit each IP to make 150 requests per `window` (here, per hour)
+  max: 200,
+  windowMs: 10 * 60 * 1000, // Limit each IP to make 150 requests per `window` (here, per hour)
   message: 'Too many requests from this IP, please try again in 15 minutes!',
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 app.use('/api', apiLimiter);
+
+// Limit requests from same IP to 150 per hour for API/AUTH Routes
+const authLimiter = rateLimit({
+  max: 40,
+  windowMs: 10 * 60 * 1000, // Limit each IP to make 150 requests per `window` (here, per hour)
+  message: 'Too many requests from this IP, please try again in 15 minutes!',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+app.use('/api/auth', authLimiter);
 
 
 /* ***** ROUTES ***** */
