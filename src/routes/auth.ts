@@ -1,7 +1,7 @@
 import express from 'express';
-import {handleLogin, handleRegister} from '../controllers/authController';
+import {handleLogin, handleLogout, handleRegister} from '../controllers/authController';
 import validate from "../middleware/validate";
-import deserializeUser from "../middleware/deserializeUser";
+import deserializeUser from "../middleware/protect";
 import {LoginSchema, RegisterSchema} from "../schema/user.schema";
 
 const router = express.Router();
@@ -19,7 +19,10 @@ router.post(
 );
 
 // GET /api/auth/logout
-// router.get('/logout', authController.logout);
+router.get('/logout',
+  deserializeUser,
+  handleLogout
+);
 
 // POST /api/auth/forgotPassword
 // router.post('/forgotPassword', authController.forgotPassword);

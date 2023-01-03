@@ -97,7 +97,7 @@ export const handleLogout = async (req: Request, res: Response) => {
     const foundUser = await User.findOne({refreshToken}).exec();
     if (!foundUser) {
       res.clearCookie(refreshTokenName, {httpOnly: true, sameSite: 'none', secure: true});
-      return res.sendStatus(204);
+      return res.status(204).json({message: "User not found."});
     }
 
     // Delete refreshToken in db
@@ -106,7 +106,7 @@ export const handleLogout = async (req: Request, res: Response) => {
     console.log(result);
 
     res.clearCookie(refreshTokenName, {httpOnly: true, sameSite: 'none', secure: true});
-    res.sendStatus(204);
+    res.status(204).json({message: "User logged out successfully."});
   } catch (err) {
     console.log(err);
     return res.status(500).json({message: "Internal server error"});
