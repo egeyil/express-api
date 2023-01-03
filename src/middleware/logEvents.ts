@@ -24,9 +24,9 @@ export const logEvents = async (message: string, logName: string) => {
 }
 
 export const logger = async (req: Request, res: Response, next: NextFunction) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log(req.cookies, req.body);
-  }
+  // if (process.env.NODE_ENV === 'development') {
+  //   console.log(req.cookies, req.body);
+  // }
   if (process.env.NODE_ENV === 'production') {
     await logEvents(`${req.method}\t${req.headers.origin}\t${req.url}\t${req.body}`, 'reqLog.txt');
   }

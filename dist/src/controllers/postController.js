@@ -22,10 +22,10 @@ exports.handleGetPosts = handleGetPosts;
 const handleGetPost = async (req, res) => {
     try {
         const user = res.locals.user;
-        const id = req.params.id ? Number(req.params.id) : null;
+        const id = req.params.id ? req.params.id : null;
         if (!id)
             return res.status(400).json({ message: "Invalid post id" });
-        const post = await Post_model_1.default.findById(req.params.id).exec();
+        const post = await Post_model_1.default.findById(id).exec();
         if (!post) {
             return res.status(404).json({ message: "Post not found" });
         }
@@ -54,14 +54,14 @@ exports.handleCreatePost = handleCreatePost;
 const handleUpdatePost = async (req, res) => {
     try {
         const user = res.locals.user;
-        const id = req.params.id ? Number(req.params.id) : null;
+        const id = req.params.id ? req.params.id : null;
         const { title, content } = req.body;
         if (!id)
             return res.status(400).json({ message: "Invalid post id" });
-        if (!title || !content)
+        if (!title && !content)
             return res.status(400).json({ message: "Invalid post data" });
         const post = await Post_model_1.default.findByIdAndUpdate(id, { title, content }, { new: true }).exec();
-        res.status(200).json({ message: "Post updated successfully.", post: post });
+        res.status(200).json({ message: "Post updated successfully.", post });
     }
     catch (e) {
         return res.status(500).json({ message: "Internal server error" });
@@ -71,7 +71,7 @@ exports.handleUpdatePost = handleUpdatePost;
 const handleDeletePost = async (req, res) => {
     try {
         const user = res.locals.user;
-        const id = req.params.id ? Number(req.params.id) : null;
+        const id = req.params.id ? req.params.id : null;
         if (!id)
             return res.status(400).json({ message: "Invalid post id" });
         const post = await Post_model_1.default.findByIdAndDelete(id).exec();

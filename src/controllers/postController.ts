@@ -20,10 +20,10 @@ export const handleGetPosts = async (req: Request, res: Response) => {
 export const handleGetPost = async (req: Request, res: Response) => {
   try {
     const user = res.locals.user;
-    const id = req.params.id ? Number(req.params.id) : null;
+    const id = req.params.id ? req.params.id : null;
     if (!id) return res.status(400).json({message: "Invalid post id"});
 
-    const post = await Post.findById(req.params.id).exec();
+    const post = await Post.findById(id).exec();
 
     if (!post) {
       return res.status(404).json({message: "Post not found"});
@@ -46,7 +46,7 @@ export const handleCreatePost = async (req: Request, res: Response) => {
 
     const post = await Post.create({title, content});
 
-    return res.status(201).json({message: "Post created successfully.", post: post });
+    return res.status(201).json({message: "Post created successfully.", post: post});
   } catch (e) {
     return res.status(500).json({message: "Internal server error"});
   }
@@ -55,15 +55,15 @@ export const handleCreatePost = async (req: Request, res: Response) => {
 export const handleUpdatePost = async (req: Request, res: Response) => {
   try {
     const user = res.locals.user;
-    const id = req.params.id ? Number(req.params.id) : null;
+    const id = req.params.id ? req.params.id : null;
     const {title, content} = req.body;
 
     if (!id) return res.status(400).json({message: "Invalid post id"});
-    if (!title || !content) return res.status(400).json({message: "Invalid post data"});
+    if (!title && !content) return res.status(400).json({message: "Invalid post data"});
 
     const post = await Post.findByIdAndUpdate(id, {title, content}, {new: true}).exec();
 
-    res.status(200).json({message: "Post updated successfully.", post: post});
+    res.status(200).json({message: "Post updated successfully.", post});
   } catch (e) {
     return res.status(500).json({message: "Internal server error"});
   }
@@ -72,7 +72,7 @@ export const handleUpdatePost = async (req: Request, res: Response) => {
 export const handleDeletePost = async (req: Request, res: Response) => {
   try {
     const user = res.locals.user;
-    const id = req.params.id ? Number(req.params.id) : null;
+    const id = req.params.id ? req.params.id : null;
 
     if (!id) return res.status(400).json({message: "Invalid post id"});
 

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetPostSchema = exports.DeletePostSchema = exports.UpdatePostSchema = exports.CreatePostSchema = exports.PostSchema = exports.PostParams = exports.PostPayload = void 0;
+exports.GetPostSchema = exports.UpdatePostSchema = exports.CreatePostSchema = exports.PostSchema = exports.PostParams = exports.PostPayload = void 0;
 const zod_1 = require("zod");
 exports.PostPayload = {
     body: zod_1.z.object({
@@ -24,11 +24,10 @@ exports.CreatePostSchema = zod_1.z.object({
     ...exports.PostPayload,
 });
 exports.UpdatePostSchema = zod_1.z.object({
-    ...exports.PostPayload,
-    ...exports.PostParams
-});
-exports.DeletePostSchema = zod_1.z.object({
-    ...exports.PostParams
+    body: zod_1.z.object({
+        title: zod_1.z.string().min(3).max(20).optional(),
+        content: zod_1.z.string().min(3).max(3000).optional(),
+    }),
 });
 exports.GetPostSchema = zod_1.z.object({
     ...exports.PostParams

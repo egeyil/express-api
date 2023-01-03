@@ -31,12 +31,10 @@ export const CreatePostSchema = z.object({
 });
 
 export const UpdatePostSchema = z.object({
-  ...PostPayload,
-  ...PostParams
-});
-
-export const DeletePostSchema = z.object({
-  ...PostParams
+  body: z.object({
+    title: z.string().min(3).max(20).optional(),
+    content: z.string().min(3).max(3000).optional(),
+  }),
 });
 
 export const GetPostSchema = z.object({
@@ -46,7 +44,6 @@ export const GetPostSchema = z.object({
 export type CreateProductInput = TypeOf<typeof CreatePostSchema>;
 export type ReadProductInput = TypeOf<typeof GetPostSchema>;
 export type UpdateProductInput = TypeOf<typeof UpdatePostSchema>;
-export type DeleteProductInput = TypeOf<typeof DeletePostSchema>;
 
 
 

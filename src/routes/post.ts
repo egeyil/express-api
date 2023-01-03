@@ -1,8 +1,8 @@
 import express from 'express';
 import {handleGetPosts, handleGetPost, handleUpdatePost, handleDeletePost, handleCreatePost} from '../controllers/postController';
 import validate from "../middleware/validate";
-import deserializeUser from "../middleware/protect";
-import { PostSchema } from "../schema/post.schema";
+import protect from "../middleware/protect";
+import {CreatePostSchema, UpdatePostSchema} from "../schema/post.schema";
 
 const router = express.Router();
 
@@ -10,16 +10,16 @@ const router = express.Router();
 // POST /posts
 router
   .route('/')
-  .get(deserializeUser, handleGetPosts)
-  .post(deserializeUser, validate(PostSchema), handleCreatePost);
+  .get(protect, handleGetPosts)
+  .post(protect, validate(CreatePostSchema), handleCreatePost);
 
 // GET /posts/:id
 // PUT /posts/:id
 // DELETE /posts/:id
 router
   .route('/:id')
-  .get(deserializeUser, handleGetPost)
-  .patch(deserializeUser, validate(PostSchema), handleUpdatePost)
-  .delete(deserializeUser, handleDeletePost);
+  .get(protect, handleGetPost)
+  .put(protect, validate(UpdatePostSchema), handleUpdatePost)
+  .delete(protect, handleDeletePost);
 
 export default router;

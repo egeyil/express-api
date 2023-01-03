@@ -37,21 +37,18 @@ export const handleLogin = async (req: Request, res: Response) => {
     // Saving refreshToken with current user
     foundUser.refreshToken = refreshToken;
     const result = await foundUser.save();
-    console.log(result);
 
     // Creates Secure Cookie with refresh token
     res.cookie(refreshTokenName, refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: 'none',
-      maxAge: 90 * 24 * 60 * 60 * 1000 // 90 days
     });
 
     res.cookie(accessTokenName, accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: 'none',
-      maxAge: 60 * 60 * 1000 // 1 hour
     })
 
     // Send authorization roles and access token to user
@@ -95,7 +92,6 @@ export const handleRegister = async (req: Request, res: Response) => {
       "email": email,
     });
 
-    console.log(result);
     const createdUser = {...result.toObject(), password: undefined};
 
     res.status(201).json({message: "User created successfully.", user: {createdUser}});
@@ -122,7 +118,6 @@ export const handleLogout = async (req: Request, res: Response) => {
     // Delete refreshToken in db
     foundUser.refreshToken = undefined;
     const result = await foundUser.save();
-    console.log(result);
 
     res.clearCookie(refreshTokenName, {
       httpOnly: true,

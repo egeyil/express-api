@@ -49,9 +49,9 @@ const logEvents = async (message, logName) => {
 };
 exports.logEvents = logEvents;
 const logger = async (req, res, next) => {
-    if (process.env.NODE_ENV === 'development') {
-        console.log(req.cookies, req.body);
-    }
+    // if (process.env.NODE_ENV === 'development') {
+    //   console.log(req.cookies, req.body);
+    // }
     if (process.env.NODE_ENV === 'production') {
         await (0, exports.logEvents)(`${req.method}\t${req.headers.origin}\t${req.url}\t${req.body}`, 'reqLog.txt');
     }

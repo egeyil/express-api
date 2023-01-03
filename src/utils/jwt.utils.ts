@@ -1,5 +1,5 @@
 import jwt, {JwtPayload} from "jsonwebtoken";
-import {accessTokenName, refreshTokenName} from "../config/globalVariables";
+import {accessTokenSecret, refreshTokenSecret} from "../config/globalVariables";
 
 // Create secrets with require('crypto').randomBytes(64).toString('hex')
 
@@ -18,11 +18,11 @@ export function issueAccessToken(user: JwtPayload) {
     username: user.username,
     email: user.email,
     roles: user.roles && Object.values(user.roles).filter(Boolean),
-  }, accessTokenName, {expiresIn: "15m"})
+  }, accessTokenSecret, {expiresIn: "15s"})
 }
 
 export function issueRefreshToken(user: JwtPayload) {
   return signJwt({
     username: user.username,
-  }, accessTokenName, {expiresIn: "90d"})
+  }, refreshTokenSecret, {expiresIn: "90d"})
 }

@@ -18,6 +18,7 @@ const protect = async (req, res, next) => {
         const refreshTokenCallback = (err, decoded) => {
             try {
                 if (err) {
+                    console.log(err);
                     res.clearCookie(globalVariables_1.refreshTokenName, {
                         httpOnly: true,
                         secure: process_1.default.env.NODE_ENV === "production",
@@ -28,17 +29,18 @@ const protect = async (req, res, next) => {
                         secure: process_1.default.env.NODE_ENV === "production",
                         sameSite: 'none',
                     });
-                    return res.status(401).json({ message: "Unauthorized" });
+                    return res.status(401).json({ message: "Unauthorized here" });
                 }
-                const newAccessToken = (0, jwt_utils_1.issueAccessToken)(decoded);
-                res.cookie(globalVariables_1.accessTokenName, newAccessToken, {
-                    httpOnly: true,
-                    secure: process_1.default.env.NODE_ENV === "production",
-                    sameSite: 'none',
-                    maxAge: 60 * 60 * 1000 // 1 hour
-                });
-                res.locals.user = decoded;
-                return next();
+                else {
+                    const newAccessToken = (0, jwt_utils_1.issueAccessToken)(decoded);
+                    res.cookie(globalVariables_1.accessTokenName, newAccessToken, {
+                        httpOnly: true,
+                        secure: process_1.default.env.NODE_ENV === "production",
+                        sameSite: 'none',
+                    });
+                    res.locals.user = decoded;
+                    return next();
+                }
             }
             catch (e) {
                 return res.status(500).json({ message: "Internal server error" });
@@ -47,22 +49,23 @@ const protect = async (req, res, next) => {
         const accessTokenCallback = (err, decoded) => {
             try {
                 if (err) {
-                    console.log(err);
                     if (err.name === "TokenExpiredError") {
                         // Verify refreshToken
-                        jsonwebtoken_1.default.verify(refreshToken, globalVariables_1.refreshTokenName, refreshTokenCallback);
+                        jsonwebtoken_1.default.verify(refreshToken, globalVariables_1.refreshTokenSecret, refreshTokenCallback);
                     }
-                    res.clearCookie(globalVariables_1.refreshTokenName, {
-                        httpOnly: true,
-                        secure: process_1.default.env.NODE_ENV === "production",
-                        sameSite: 'none',
-                    });
-                    res.clearCookie(globalVariables_1.accessTokenName, {
-                        httpOnly: true,
-                        secure: process_1.default.env.NODE_ENV === "production",
-                        sameSite: 'none',
-                    });
-                    return res.status(401).json({ message: "Unauthorized" });
+                    else {
+                        res.clearCookie(globalVariables_1.refreshTokenName, {
+                            httpOnly: true,
+                            secure: process_1.default.env.NODE_ENV === "production",
+                            sameSite: 'none',
+                        });
+                        res.clearCookie(globalVariables_1.accessTokenName, {
+                            httpOnly: true,
+                            secure: process_1.default.env.NODE_ENV === "production",
+                            sameSite: 'none',
+                        });
+                        return res.status(401).json({ message: "Unauthorized" });
+                    }
                 }
                 res.locals.user = decoded;
                 return next();
@@ -71,7 +74,7 @@ const protect = async (req, res, next) => {
                 return res.status(500).json({ message: "Internal server error" });
             }
         };
-        jsonwebtoken_1.default.verify(accessToken, globalVariables_1.accessTokenName, accessTokenCallback);
+        jsonwebtoken_1.default.verify(accessToken, globalVariables_1.accessTokenSecret, accessTokenCallback);
     }
     catch (e) {
         return res.status(401).json({ message: "Unauthorized" });

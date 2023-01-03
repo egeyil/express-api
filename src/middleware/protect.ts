@@ -1,6 +1,10 @@
 import {Request, Response, NextFunction} from "express";
 import {issueAccessToken, signJwt, verifyJwt} from "../utils/jwt.utils";
-import {accessTokenCookieOptions, accessTokenName, refreshTokenName} from "../config/globalVariables";
+import {
+  accessTokenName, accessTokenSecret,
+  refreshTokenName,
+  refreshTokenSecret
+} from "../config/globalVariables";
 import jwt, {JwtPayload, VerifyErrors} from "jsonwebtoken";
 import process from "process";
 
@@ -17,6 +21,7 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
     const refreshTokenCallback = (err: VerifyErrors | null, decoded: JwtPayload | string | undefined) => {
       try {
         if (err) {
+          console.log(err)
           res.clearCookie(refreshTokenName, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -27,17 +32,17 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
             secure: process.env.NODE_ENV === "production",
             sameSite: 'none',
           });
-          return res.status(401).json({message: "Unauthorized"});
+          return res.status(401).json({message: "Unauthorized here"});
+        } else {
+          const newAccessToken = issueAccessToken(decoded as JwtPayload);
+          res.cookie(accessTokenName, newAccessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: 'none',
+          });
+          res.locals.user = decoded;
+          return next();
         }
-        const newAccessToken = issueAccessToken(decoded as JwtPayload);
-        res.cookie(accessTokenName, newAccessToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: 'none',
-          maxAge: 60 * 60 * 1000 // 1 hour
-        });
-        res.locals.user = decoded;
-        return next();
       } catch (e) {
         return res.status(500).json({message: "Internal server error"});
       }
@@ -45,22 +50,22 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
     const accessTokenCallback = (err: VerifyErrors | null, decoded: JwtPayload | string | undefined) => {
       try {
         if (err) {
-          console.log(err);
           if (err.name === "TokenExpiredError") {
             // Verify refreshToken
-            jwt.verify(refreshToken, refreshTokenName, refreshTokenCallback);
+            jwt.verify(refreshToken, refreshTokenSecret, refreshTokenCallback);
+          } else {
+            res.clearCookie(refreshTokenName, {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: 'none',
+            })
+            res.clearCookie(accessTokenName, {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: 'none',
+            });
+            return res.status(401).json({message: "Unauthorized"});
           }
-          res.clearCookie(refreshTokenName, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: 'none',
-          })
-          res.clearCookie(accessTokenName, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: 'none',
-          });
-          return res.status(401).json({message: "Unauthorized"});
         }
         res.locals.user = decoded;
         return next();
@@ -69,7 +74,7 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
       }
     }
 
-    jwt.verify(accessToken, accessTokenName, accessTokenCallback);
+    jwt.verify(accessToken, accessTokenSecret, accessTokenCallback);
   } catch (e) {
     return res.status(401).json({message: "Unauthorized"});
   }

@@ -14,14 +14,14 @@ const router = express_1.default.Router();
 router
     .route('/')
     .get(protect_1.default, postController_1.handleGetPosts)
-    .post(protect_1.default, (0, validate_1.default)(post_schema_1.PostSchema), postController_1.handleCreatePost);
+    .post(protect_1.default, (0, validate_1.default)(post_schema_1.CreatePostSchema), postController_1.handleCreatePost);
 // GET /posts/:id
 // PUT /posts/:id
 // DELETE /posts/:id
 router
     .route('/:id')
     .get(protect_1.default, postController_1.handleGetPost)
-    .patch(protect_1.default, (0, validate_1.default)(post_schema_1.PostSchema), postController_1.handleUpdatePost)
+    .put(protect_1.default, (0, validate_1.default)(post_schema_1.UpdatePostSchema), postController_1.handleUpdatePost)
     .delete(protect_1.default, postController_1.handleDeletePost);
 exports.default = router;
 //# sourceMappingURL=post.js.map

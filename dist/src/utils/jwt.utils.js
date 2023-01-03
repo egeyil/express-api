@@ -22,13 +22,13 @@ function issueAccessToken(user) {
         username: user.username,
         email: user.email,
         roles: user.roles && Object.values(user.roles).filter(Boolean),
-    }, globalVariables_1.accessTokenName, { expiresIn: "15m" });
+    }, globalVariables_1.accessTokenSecret, { expiresIn: "15s" });
 }
 exports.issueAccessToken = issueAccessToken;
 function issueRefreshToken(user) {
     return signJwt({
         username: user.username,
-    }, globalVariables_1.accessTokenName, { expiresIn: "90d" });
+    }, globalVariables_1.refreshTokenSecret, { expiresIn: "90d" });
 }
 exports.issueRefreshToken = issueRefreshToken;
 //# sourceMappingURL=jwt.utils.js.map
