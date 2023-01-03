@@ -1,7 +1,6 @@
 import express from 'express';
 import {handleLogin, handleLogout, handleRegister} from '../controllers/authController';
 import validate from "../middleware/validate";
-import deserializeUser from "../middleware/protect";
 import {LoginSchema, RegisterSchema} from "../schema/user.schema";
 
 const router = express.Router();

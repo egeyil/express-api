@@ -1,5 +1,5 @@
 import {Request, Response, NextFunction} from "express";
-import {issueAccessToken, signJwt, verifyJwt} from "../utils/jwt.utils";
+import {issueAccessToken} from "../utils/jwt.utils";
 import {
   accessTokenName, accessTokenSecret,
   refreshTokenName,

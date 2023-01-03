@@ -1,4 +1,3 @@
-import validator from "validator";
 import xss from "xss";
 import {NextFunction, Request, Response} from "express";
 

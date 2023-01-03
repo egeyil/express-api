@@ -1,9 +1,4 @@
 import {z, TypeOf} from 'zod';
-// import isEmail from 'validator/lib/isEmail';
-// Below are tree-shakable versions
-import escape from 'validator/es/lib/escape';
-import normalizeEmail from "validator/es/lib/normalizeEmail";
-
 
 export const PostPayload = {
   body: z.object({

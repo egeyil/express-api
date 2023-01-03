@@ -1,8 +1,8 @@
 import {Request, Response} from "express";
-import User, {UserInput} from '../model/User.model';
+import User from '../model/User.model';
 import bcrypt from 'bcrypt';
 import isEmail from "validator/lib/isEmail";
-import {issueAccessToken, issueRefreshToken, signJwt, verifyJwt} from "../utils/jwt.utils";
+import {issueAccessToken, issueRefreshToken} from "../utils/jwt.utils";
 import * as process from "process";
 import {accessTokenName, refreshTokenName} from "../config/globalVariables";
 
@@ -13,7 +13,7 @@ export const handleLogin = async (req: Request, res: Response) => {
     if (!user || !password) return res.status(400).json({'message': 'Username/email and password are required.'});
 
     // Check if user is email or username and query accordingly
-    let foundUser = null;
+    let foundUser;
     if (isEmail(user)) {
       foundUser = await User.findOne({email: user}).exec();
     } else {
@@ -55,10 +55,10 @@ export const handleLogin = async (req: Request, res: Response) => {
     res.json({
       message: "Login successful",
       user: {
-        roles: foundUser.roles,
-        username: foundUser.username,
-        email: foundUser.email,
-        posts: foundUser.posts,
+        roles: result.roles,
+        username: result.username,
+        email: result.email,
+        posts: result.posts,
       }
     });
   } catch (e) {
@@ -129,7 +129,11 @@ export const handleLogout = async (req: Request, res: Response) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: 'none',
     });
-    res.status(200).json({message: "User logged out successfully."});
+    res.status(200).json({message: "User logged out successfully.", user: {
+        roles: result.roles,
+        username: result.username,
+        email: result.email,}
+    });
   } catch (err) {
     console.log(err);
     return res.status(500).json({message: "Internal server error"});
