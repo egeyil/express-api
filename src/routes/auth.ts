@@ -19,7 +19,7 @@ router.post(
 
 // GET /api/auth/logout
 router.get('/logout',
-  handleLogout
+  handleLogout,
 );
 
 // POST /api/auth/forgotPassword

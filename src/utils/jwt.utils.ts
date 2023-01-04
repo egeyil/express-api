@@ -9,8 +9,30 @@ export function signJwt(object: Object, secret: string, options?: jwt.SignOption
   });
 }
 
-export function verifyJwt(token: string, secret: string, options?: jwt.VerifyOptions | undefined) {
-  return jwt.verify(token, secret);
+export function verifyJwt(token: string, secret: string) {
+  try {
+    const decoded = jwt.verify(token, secret);
+    return {
+      decoded: decoded,
+      valid: true,
+      expired: false,
+    };
+  } catch (e: any) {
+    if (e.name === "TokenExpiredError") {
+      return {
+        decoded: null,
+        expired: true,
+        valid: true,
+      }
+    }
+    else {
+      return {
+        decoded: null,
+        expired: false,
+        valid: false,
+      }
+    }
+  }
 }
 
 export function issueAccessToken(user: JwtPayload) {
@@ -24,5 +46,7 @@ export function issueAccessToken(user: JwtPayload) {
 export function issueRefreshToken(user: JwtPayload) {
   return signJwt({
     username: user.username,
+    email: user.email,
+    roles: user.roles && Object.values(user.roles).filter(Boolean),
   }, refreshTokenSecret, {expiresIn: "90d"})
 }

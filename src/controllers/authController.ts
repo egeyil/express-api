@@ -1,4 +1,4 @@
-import {Request, Response} from "express";
+import {NextFunction, Request, Response} from "express";
 import User from '../model/User.model';
 import bcrypt from 'bcrypt';
 import isEmail from "validator/lib/isEmail";
@@ -101,7 +101,7 @@ export const handleRegister = async (req: Request, res: Response) => {
   }
 }
 
-export const handleLogout = async (req: Request, res: Response) => {
+export const handleLogout = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // On client, also delete the accessToken
     const cookies = req.cookies;
@@ -111,13 +111,23 @@ export const handleLogout = async (req: Request, res: Response) => {
     // Is refreshToken in db?
     const foundUser = await User.findOne({refreshToken}).exec();
     if (!foundUser) {
-      res.clearCookie(refreshTokenName, {httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === "production"});
-      return res.status(204).json({message: "User not found."});
+      res.clearCookie(refreshTokenName, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: 'none',
+      })
+      res.clearCookie(accessTokenName, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: 'none',
+      });
+      return res.status(204).json({message: "No user found."});
     }
 
     // Delete refreshToken in db
     foundUser.refreshToken = undefined;
     const result = await foundUser.save();
+
 
     res.clearCookie(refreshTokenName, {
       httpOnly: true,
@@ -129,10 +139,13 @@ export const handleLogout = async (req: Request, res: Response) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: 'none',
     });
-    res.status(200).json({message: "User logged out successfully.", user: {
+    return res.status(200).json({
+      message: "User logged out successfully.",
+      user: {
         roles: result.roles,
         username: result.username,
-        email: result.email,}
+        email: result.email,
+      }
     });
   } catch (err) {
     console.log(err);

@@ -21,10 +21,10 @@ with JWT, authorization with user roles.
 - Authentication (JWT) with access and refresh tokens
 - Authorization with user roles
 
-### Features to be added in the future
+### Features to be added
 
 - Docker
-- Redis for caching
+- Redis and advanced rate limiting with rate-limiter-flexible
 - ESLint
 - Jest for testing
 - Prettier

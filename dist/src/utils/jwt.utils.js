@@ -13,8 +13,31 @@ function signJwt(object, secret, options) {
     });
 }
 exports.signJwt = signJwt;
-function verifyJwt(token, secret, options) {
-    return jsonwebtoken_1.default.verify(token, secret);
+function verifyJwt(token, secret) {
+    try {
+        const decoded = jsonwebtoken_1.default.verify(token, secret);
+        return {
+            decoded: decoded,
+            valid: true,
+            expired: false,
+        };
+    }
+    catch (e) {
+        if (e.name === "TokenExpiredError") {
+            return {
+                decoded: null,
+                expired: true,
+                valid: true,
+            };
+        }
+        else {
+            return {
+                decoded: null,
+                expired: false,
+                valid: false,
+            };
+        }
+    }
 }
 exports.verifyJwt = verifyJwt;
 function issueAccessToken(user) {
@@ -28,6 +51,8 @@ exports.issueAccessToken = issueAccessToken;
 function issueRefreshToken(user) {
     return signJwt({
         username: user.username,
+        email: user.email,
+        roles: user.roles && Object.values(user.roles).filter(Boolean),
     }, globalVariables_1.refreshTokenSecret, { expiresIn: "90d" });
 }
 exports.issueRefreshToken = issueRefreshToken;

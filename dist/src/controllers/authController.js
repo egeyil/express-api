@@ -40,7 +40,7 @@ const handleLogin = async (req, res) => {
         if (!user || !password)
             return res.status(400).json({ 'message': 'Username/email and password are required.' });
         // Check if user is email or username and query accordingly
-        let foundUser = null;
+        let foundUser;
         if ((0, isEmail_1.default)(user)) {
             foundUser = await User_model_1.default.findOne({ email: user }).exec();
         }
@@ -77,10 +77,10 @@ const handleLogin = async (req, res) => {
         res.json({
             message: "Login successful",
             user: {
-                roles: foundUser.roles,
-                username: foundUser.username,
-                email: foundUser.email,
-                posts: foundUser.posts,
+                roles: result.roles,
+                username: result.username,
+                email: result.email,
+                posts: result.posts,
             }
         });
     }
@@ -122,7 +122,7 @@ const handleRegister = async (req, res) => {
     }
 };
 exports.handleRegister = handleRegister;
-const handleLogout = async (req, res) => {
+const handleLogout = async (req, res, next) => {
     try {
         // On client, also delete the accessToken
         const cookies = req.cookies;
@@ -132,8 +132,17 @@ const handleLogout = async (req, res) => {
         // Is refreshToken in db?
         const foundUser = await User_model_1.default.findOne({ refreshToken }).exec();
         if (!foundUser) {
-            res.clearCookie(globalVariables_1.refreshTokenName, { httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === "production" });
-            return res.status(204).json({ message: "User not found." });
+            res.clearCookie(globalVariables_1.refreshTokenName, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: 'none',
+            });
+            res.clearCookie(globalVariables_1.accessTokenName, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: 'none',
+            });
+            return res.status(204).json({ message: "No user found." });
         }
         // Delete refreshToken in db
         foundUser.refreshToken = undefined;
@@ -148,7 +157,14 @@ const handleLogout = async (req, res) => {
             secure: process.env.NODE_ENV === "production",
             sameSite: 'none',
         });
-        res.status(200).json({ message: "User logged out successfully." });
+        return res.status(200).json({
+            message: "User logged out successfully.",
+            user: {
+                roles: result.roles,
+                username: result.username,
+                email: result.email,
+            }
+        });
     }
     catch (err) {
         console.log(err);

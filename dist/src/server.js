@@ -22,8 +22,6 @@ const metrics_1 = require("./utils/metrics");
 const swagger_1 = __importDefault(require("./utils/swagger"));
 dotenv_1.default.config();
 const PORT = Number(process.env.PORT) || 3500;
-// Connect to MongoDB
-(0, dbConnect_1.default)();
 // Compress all responses
 app.use((0, compression_1.default)());
 // Handle options credentials check - before CORS!
