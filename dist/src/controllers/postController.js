@@ -61,6 +61,8 @@ const handleUpdatePost = async (req, res) => {
         if (!title && !content)
             return res.status(400).json({ message: "Invalid post data" });
         const post = await Post_model_1.default.findByIdAndUpdate(id, { title, content }, { new: true }).exec();
+        if (!post)
+            return res.status(404).json({ message: "Post not found" });
         res.status(200).json({ message: "Post updated successfully.", user, post });
     }
     catch (e) {

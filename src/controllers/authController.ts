@@ -101,7 +101,7 @@ export const handleRegister = async (req: Request, res: Response) => {
   }
 }
 
-export const handleLogout = async (req: Request, res: Response, next: NextFunction) => {
+export const handleLogout = async (req: Request, res: Response) => {
   try {
     // On client, also delete the accessToken
     const cookies = req.cookies;

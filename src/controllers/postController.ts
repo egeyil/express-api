@@ -62,6 +62,8 @@ export const handleUpdatePost = async (req: Request, res: Response) => {
 
     const post = await Post.findByIdAndUpdate(id, {title, content}, {new: true}).exec();
 
+    if (!post) return res.status(404).json({message: "Post not found"});
+
     res.status(200).json({message: "Post updated successfully.", user, post});
   } catch (e) {
     return res.status(500).json({message: "Internal server error"});

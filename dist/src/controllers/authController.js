@@ -122,7 +122,7 @@ const handleRegister = async (req, res) => {
     }
 };
 exports.handleRegister = handleRegister;
-const handleLogout = async (req, res, next) => {
+const handleLogout = async (req, res) => {
     try {
         // On client, also delete the accessToken
         const cookies = req.cookies;
