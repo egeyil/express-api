@@ -10,25 +10,16 @@ const options = {
     definition: {
         openapi: "3.1.0",
         info: {
-            title: "REST API Docs",
+            title: "Express REST API Documentation",
             version: package_json_1.version,
         },
-        components: {
-            securitySchemas: {
-                bearerAuth: {
-                    type: "http",
-                    scheme: "bearer",
-                    bearerFormat: "JWT",
-                },
-            },
-        },
-        security: [
+        servers: [
             {
-                bearerAuth: [],
+                url: "http://localhost:3500",
             },
         ],
     },
-    apis: ["./src/routes/*.ts", "./src/schema/*.ts"],
+    apis: ["./src/routes/*", "./src/schema/*"],
 };
 const swaggerSpec = (0, swagger_jsdoc_1.default)(options);
 function swaggerDocs(app, port) {
