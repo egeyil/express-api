@@ -1,6 +1,5 @@
 import express, {Request, Response} from "express";
 import dotenv from "dotenv";
-const app = express();
 import path from 'path';
 import cors from 'cors';
 import corsOptions from "./utils/corsOptions";
@@ -19,6 +18,8 @@ import multer from 'multer';
 import compression from 'compression';
 import {restResponseTimeHistogram, startMetricsServer} from "./utils/metrics";
 import swaggerDocs from "./utils/swagger";
+
+export const app = express();
 
 dotenv.config();
 const PORT = Number(process.env.PORT) || 3500;

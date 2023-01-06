@@ -1,4 +1,4 @@
-import { logEvents } from './logEvents.js';
+import { logEvents } from './logEvents';
 import {NextFunction, Request, Response} from "express";
 
 // This middleware is used as a global error handler. It will catch any errors

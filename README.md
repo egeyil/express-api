@@ -24,6 +24,7 @@ with JWT, authorization with user roles.
 ### Features to be added
 
 - Docker
+- Google OAuth
 - Redis and advanced rate limiting with rate-limiter-flexible
 - ESLint
 - Jest for testing
