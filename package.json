@@ -7,7 +7,7 @@
     "build": "tsc",
     "start": "node dist/src/index.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/src/index.js\"",
-    "test": "jest"
+    "test": "jest --watchAll --detectOpenHandles"
   },
   "repository": {
     "type": "git",

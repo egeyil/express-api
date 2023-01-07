@@ -18,11 +18,12 @@ import multer from 'multer';
 import compression from 'compression';
 import {restResponseTimeHistogram, startMetricsServer} from "./utils/metrics";
 import swaggerDocs from "./utils/swagger";
+import routes from "./routes";
 
 export const app = express();
 
 dotenv.config();
-const PORT = Number(process.env.PORT) || 3500;
+const PORT = Number(process.env.PORT) || 3456;
 
 // Compress all responses
 app.use(compression());
@@ -82,15 +83,8 @@ const authLimiter = rateLimit({
 });
 app.use('/api/auth', authLimiter);
 
-
-/* ***** ROUTES ***** */
-// Import all routes
-import auth from './routes/auth';
-import posts from './routes/post';
-
-// Mount routers
-app.use('/api/auth', auth);
-app.use('/api/posts', posts);
+// Mount routes
+routes(app);
 
 app.use(errorHandler);
 
@@ -121,13 +115,14 @@ app.use(
   })
 );
 
-app.listen(PORT, async () => {
-  console.log(`Server running on port ${PORT}`)
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, async () => {
+    console.log(`Server running on port ${PORT}`)
 
-  await connectDB();
-  console.log('Connected to MongoDB');
+    await connectDB();
+    console.log('Connected to MongoDB');
+    // startMetricsServer();
 
-  startMetricsServer();
-
-  swaggerDocs(app, PORT);
-});
+    swaggerDocs(app, PORT);
+  });
+}

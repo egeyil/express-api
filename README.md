@@ -23,12 +23,13 @@ with JWT, authorization with user roles.
 
 ### Features to be added
 
-- Docker
-- Google OAuth
-- Redis and advanced rate limiting with rate-limiter-flexible
-- ESLint
 - Jest for testing
+- Google OAuth
+- ESLint
 - Prettier
+- Metrics with Prometheus
+- Docker
+- Redis and advanced rate limiting with rate-limiter-flexible
 
 ### API Endpoints
 
