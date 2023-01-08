@@ -1,5 +1,7 @@
-import express, {Request, Response} from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
+import express, {Request, Response} from "express";
 import path from 'path';
 import cors from 'cors';
 import corsOptions from "./utils/corsOptions";
@@ -20,9 +22,6 @@ import routes from "./routes";
 
 const app = express();
 
-dotenv.config();
-const PORT = Number(process.env.PORT) || 3500;
-
 // Compress all responses
 app.use(compression());
 
@@ -31,7 +30,7 @@ app.use(compression());
 app.use(credentials);
 
 // Cross Origin Resource Sharing
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
 // built-in middleware to handle urlencoded form data
 app.use(express.urlencoded({extended: false, limit: '30kb'}));

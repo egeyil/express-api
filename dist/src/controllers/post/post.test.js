@@ -30,32 +30,41 @@ const supertest_1 = __importDefault(require("supertest"));
 const app_1 = __importDefault(require("../../app"));
 const request = (0, supertest_1.default)(app_1.default);
 const dbConnect_1 = __importStar(require("../../utils/dbConnect"));
-describe('Auth', () => {
+const login = async (username, password) => {
+    return request.post('/api/auth/login').send({
+        username,
+        password,
+    });
+};
+let cookies;
+describe('Post', () => {
     beforeAll(async () => {
         await (0, dbConnect_1.default)();
+        const res = await login("Ege", "123456");
+        cookies = res.headers['set-cookie'];
+        console.log(cookies);
     });
     afterAll(async () => {
         await (0, dbConnect_1.disconnectDB)();
     });
-    describe('POST /auth/login', () => {
-        describe('given the user exists', () => {
-            it('should return 200 OK', async () => {
-                const res = await request.post('/api/auth/login').send({
-                    username: 'Ege',
-                    password: '123456',
-                });
-                expect(res.statusCode).toBe(200);
+    describe('GET /posts', () => {
+        describe('If the user is not logged in', () => {
+            it('should return 401', async () => {
+                await request.get('/api/posts').expect(401);
             });
         });
-        // describe('given the user does not exist', () => {
-        //   it('should return 401', () => {
-        //     const user = {
-        //       username: 'NONEXISTENT',
-        //       password: '123456',
-        //     };
-        //     supertest(app).post('/api/auth/login').send(user).expect(401);
-        //   });
-        // });
+        describe('given the post does not exist', () => {
+            it('should return 404', async () => {
+                const postId = 1;
+                await request.get(`/api/posts/${postId}`).expect(404);
+            });
+        });
+        describe('given the post exists', () => {
+            it('should return 200 OK', async () => {
+                const postId = 1;
+                await request.get(`/api/posts/${postId}`).expect(200);
+            });
+        });
     });
 });
-//# sourceMappingURL=auth.test.js.map
+//# sourceMappingURL=post.test.js.map

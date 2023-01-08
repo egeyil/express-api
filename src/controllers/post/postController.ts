@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import Post from "../model/Post.model";
+import Post from "../../model/Post.model";
 
 export const handleGetPosts = async (req: Request, res: Response) => {
   try {

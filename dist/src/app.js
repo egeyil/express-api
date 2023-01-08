@@ -3,9 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
+const cors_1 = __importDefault(require("cors"));
+const corsOptions_1 = __importDefault(require("./utils/corsOptions"));
 const logEvents_1 = require("./middleware/logEvents");
 const credentials_1 = __importDefault(require("./middleware/credentials"));
 const response_time_1 = __importDefault(require("response-time"));
@@ -18,15 +21,13 @@ const compression_1 = __importDefault(require("compression"));
 const metrics_1 = require("./utils/metrics");
 const routes_1 = __importDefault(require("./routes"));
 const app = (0, express_1.default)();
-dotenv_1.default.config();
-const PORT = Number(process.env.PORT) || 3500;
 // Compress all responses
 app.use((0, compression_1.default)());
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirement
 app.use(credentials_1.default);
 // Cross Origin Resource Sharing
-// app.use(cors(corsOptions));
+app.use((0, cors_1.default)(corsOptions_1.default));
 // built-in middleware to handle urlencoded form data
 app.use(express_1.default.urlencoded({ extended: false, limit: '30kb' }));
 app.use(express_1.default.json({ limit: '30kb' }));

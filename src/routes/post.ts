@@ -1,5 +1,5 @@
 import express from 'express';
-import {handleGetPosts, handleGetPost, handleUpdatePost, handleDeletePost, handleCreatePost} from '../controllers/postController';
+import {handleGetPosts, handleGetPost, handleUpdatePost, handleDeletePost, handleCreatePost} from '../controllers/post/postController';
 import validate from "../middleware/validate";
 import protect from "../middleware/protect";
 import {CreatePostSchema, UpdatePostSchema} from "../schema/post.schema";
