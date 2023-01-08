@@ -20,10 +20,10 @@ with JWT, authorization with user roles.
 - Security best practices with packages like Zod, Helmet, Validator, XSS, CORS, JWT and more
 - Authentication (JWT) with access and refresh tokens
 - Authorization with user roles
+- API Layer (Integration) testing with Jest, Supertest and ts-jest
 
 ### Features to be added
 
-- Jest for testing
 - Google OAuth
 - ESLint
 - Prettier

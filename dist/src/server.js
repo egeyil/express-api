@@ -3,102 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.app = void 0;
-const express_1 = __importDefault(require("express"));
-const dotenv_1 = __importDefault(require("dotenv"));
-const path_1 = __importDefault(require("path"));
-const logEvents_1 = require("./middleware/logEvents");
-const errorHandler_1 = __importDefault(require("./middleware/errorHandler"));
+const app_1 = __importDefault(require("./app"));
 const dbConnect_1 = __importDefault(require("./utils/dbConnect"));
-const credentials_1 = __importDefault(require("./middleware/credentials"));
-const response_time_1 = __importDefault(require("response-time"));
-const cookie_parser_1 = __importDefault(require("cookie-parser"));
-const morgan_1 = __importDefault(require("morgan"));
-const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
-const helmet_1 = __importDefault(require("helmet"));
-const hpp_1 = __importDefault(require("hpp"));
-const compression_1 = __importDefault(require("compression"));
-const metrics_1 = require("./utils/metrics");
 const swagger_1 = __importDefault(require("./utils/swagger"));
-const routes_1 = __importDefault(require("./routes"));
-exports.app = (0, express_1.default)();
-dotenv_1.default.config();
 const PORT = Number(process.env.PORT) || 3500;
-// Compress all responses
-exports.app.use((0, compression_1.default)());
-// Handle options credentials check - before CORS!
-// and fetch cookies credentials requirement
-exports.app.use(credentials_1.default);
-// Cross Origin Resource Sharing
-// app.use(cors(corsOptions));
-// built-in middleware to handle urlencoded form data
-exports.app.use(express_1.default.urlencoded({ extended: false, limit: '30kb' }));
-exports.app.use(express_1.default.json({ limit: '30kb' }));
-// built-in middleware for json
-exports.app.use(express_1.default.json());
-//middleware for cookies
-exports.app.use((0, cookie_parser_1.default)());
-//serve static files
-exports.app.use('/', express_1.default.static(path_1.default.join(__dirname, '/public')));
-// Set security HTTP headers
-exports.app.use((0, helmet_1.default)());
-// Prevent http param pollution
-exports.app.use((0, hpp_1.default)());
-// Data sanitization against XSS
-//app.use(xss());
-// Development logging
-if (process.env.NODE_ENV === 'development') {
-    exports.app.use((0, morgan_1.default)('dev'));
-    exports.app.use(logEvents_1.logger);
-}
-// Limit requests from same IP to 150 per hour for API Routes
-const apiLimiter = (0, express_rate_limit_1.default)({
-    max: 200,
-    windowMs: 10 * 60 * 1000,
-    message: 'Too many requests from this IP, please try again in 15 minutes!',
-    standardHeaders: true,
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-});
-exports.app.use('/api', apiLimiter);
-// Limit requests from same IP to 150 per hour for API/AUTH Routes
-const authLimiter = (0, express_rate_limit_1.default)({
-    max: 40,
-    windowMs: 10 * 60 * 1000,
-    message: 'Too many requests from this IP, please try again in 15 minutes!',
-    standardHeaders: true,
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-});
-exports.app.use('/api/auth', authLimiter);
-// Mount routes
-(0, routes_1.default)(exports.app);
-exports.app.use(errorHandler_1.default);
-exports.app.all('*', (req, res) => {
-    res.status(404);
-    if (req.accepts('html')) {
-        res.json({ "error": "404 Not Found" });
-        // res.sendFile(path.join(__dirname, 'views', '404.html'));
-    }
-    else if (req.accepts('json')) {
-        res.json({ "error": "404 Not Found" });
-    }
-    else {
-        res.type('txt').send("404 Not Found");
-    }
-});
-exports.app.use((0, response_time_1.default)((req, res, time) => {
-    if (req?.route?.path) {
-        metrics_1.restResponseTimeHistogram.observe({
-            method: req.method,
-            route: req.route.path,
-            status_code: res.statusCode,
-        }, time * 1000);
-    }
-}));
-exports.app.listen(PORT, async () => {
-    console.log(`Server running on port ${PORT}`);
+async function startServer() {
     await (0, dbConnect_1.default)();
-    console.log('Connected to MongoDB');
-    // startMetricsServer();
-    (0, swagger_1.default)(exports.app, PORT);
-});
+    (0, swagger_1.default)(app_1.default, PORT);
+    app_1.default.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+startServer();
 //# sourceMappingURL=server.js.map

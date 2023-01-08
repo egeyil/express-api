@@ -1,23 +1,23 @@
 import {NextFunction, Request, Response} from "express";
-import User from '../model/User.model';
+import User from '../../model/User.model';
 import bcrypt from 'bcrypt';
 import isEmail from "validator/lib/isEmail";
-import {issueAccessToken, issueRefreshToken} from "../utils/jwt.utils";
+import {issueAccessToken, issueRefreshToken} from "../../utils/jwt.utils";
 import * as process from "process";
-import {accessTokenName, refreshTokenName} from "../config/globalVariables";
+import {accessTokenName, refreshTokenName} from "../../config/globalVariables";
 
 export const handleLogin = async (req: Request, res: Response) => {
   try {
-    const {user, password} = req.body;
+    const {username, email, password} = req.body;
     // If no user data or password provided, return error
-    if (!user || !password) return res.status(400).json({'message': 'Username/email and password are required.'});
+    if ((!username && !email) || !password) return res.status(400).json({'message': 'Username/email and password are required.'});
 
     // Check if user is email or username and query accordingly
     let foundUser;
-    if (isEmail(user)) {
-      foundUser = await User.findOne({email: user}).exec();
+    if (username) {
+      foundUser = await User.findOne({username}).exec();
     } else {
-      foundUser = await User.findOne({username: user}).exec();
+      foundUser = await User.findOne({email}).exec();
     }
 
     // If no user found, return error

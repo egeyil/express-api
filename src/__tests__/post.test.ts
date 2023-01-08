@@ -1,5 +1,5 @@
 import supertest from "supertest";
-import {app} from "../server";
+import app from "../app";
 describe('post', () => {
   describe('If the user is not logged in', () => {
     it('should return 401', function () {
