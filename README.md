@@ -11,10 +11,8 @@ with JWT, authorization with user roles.
 - Typescript
 - MongoDB
 - Mongoose
-- Zod for validation
-- Validator.js for validation and sanitization
+- Zod and Validator.js for validation and sanitization
 - Error and Request logging to console and files
-- Swagger for API documentation
 - CRUD
 - Rate limiting
 - Security best practices with packages like Zod, Helmet, Validator, XSS, CORS, JWT and more
@@ -24,6 +22,8 @@ with JWT, authorization with user roles.
 
 ### Features to be added
 
+- Swagger for API documentation
+- CSRF protection
 - Google OAuth
 - ESLint
 - Prettier
@@ -37,4 +37,13 @@ with JWT, authorization with user roles.
 
 - POST /api/auth/register
 - POST /api/auth/login
+- POST /api/auth/logout
+
+#### Posts
+
+- GET /api/posts
+- POST /api/posts
+- GET /api/posts/:id
+- PUT /api/posts/:id
+- DELETE /api/posts/:id
 
