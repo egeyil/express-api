@@ -25,8 +25,6 @@ with JWT, authorization with user roles.
 - Swagger for API documentation
 - CSRF protection
 - Google OAuth
-- ESLint
-- Prettier
 - Metrics with Prometheus
 - Docker
 - Redis and advanced rate limiting with rate-limiter-flexible
