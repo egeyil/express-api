@@ -2,7 +2,6 @@ import { Express, Request, Response } from "express";
 import auth from './routes/auth';
 import posts from './routes/post';
 import errorHandler from "./middleware/errorHandler";
-import app from "./app";
 
 // We will handle routes in this file
 const routes = (app: Express) => {
