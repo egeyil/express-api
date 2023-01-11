@@ -108,13 +108,8 @@ export const handleLogout = async (req: Request, res: Response) => {
       res.clearCookie(refreshTokenName, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: 'none',
+        sameSite: 'strict',
       })
-      res.clearCookie(accessTokenName, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: 'none',
-      });
       return res.status(204).json({message: "No user found."});
     }
 
@@ -126,20 +121,10 @@ export const handleLogout = async (req: Request, res: Response) => {
     res.clearCookie(refreshTokenName, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: 'none',
+      sameSite: 'strict',
     })
-    res.clearCookie(accessTokenName, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: 'none',
-    });
     return res.status(200).json({
-      message: "User logged out successfully.",
-      user: {
-        roles: result.roles,
-        username: result.username,
-        email: result.email,
-      }
+      message: "Logged out successfully.",
     });
   } catch (err) {
     console.log(err);

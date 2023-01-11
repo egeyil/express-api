@@ -11,10 +11,12 @@ import {JwtPayload} from "jsonwebtoken";
 const protect = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const refreshToken = req.cookies[refreshTokenName];
-    const {accessToken} = req.body;
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({message: "Unauthorized, no access token provided"});
+    const accessToken = authHeader.split(' ')[1];
 
     // If no access token, return 401
-    if (!accessToken) return res.status(401).json({message: "Unauthorized, no tokens provided"});
+    if (!accessToken) return res.status(401).json({message: "Unauthorized, no access token provided"});
 
     const {decoded, valid, expired} = verifyJwt(accessToken, accessTokenSecret) as JwtPayload;
 
