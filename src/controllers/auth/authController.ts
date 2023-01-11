@@ -1,7 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import User from '../../model/User.model';
 import bcrypt from 'bcrypt';
-import isEmail from "validator/lib/isEmail";
 import {issueAccessToken, issueRefreshToken} from "../../utils/jwt.utils";
 import * as process from "process";
 import {accessTokenName, refreshTokenName} from "../../config/globalVariables";
@@ -42,18 +41,13 @@ export const handleLogin = async (req: Request, res: Response) => {
     res.cookie(refreshTokenName, refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: 'none',
+      sameSite: 'strict',
     });
-
-    res.cookie(accessTokenName, accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: 'none',
-    })
 
     // Send authorization roles and access token to user
     res.json({
       message: "Login successful",
+      accessToken,
       user: {
         roles: result.roles,
         username: result.username,
@@ -147,6 +141,48 @@ export const handleLogout = async (req: Request, res: Response) => {
         email: result.email,
       }
     });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({message: "Internal server error"});
+  }
+}
+
+export const handleRefreshToken = async (req: Request, res: Response) => {
+  try {
+    const cookies = req.cookies;
+    if (!cookies || !cookies[refreshTokenName]) return res.status(401).json({message: "No cookies found."});
+    const refreshToken = cookies[refreshTokenName];
+
+    // Is refreshToken in db?
+    const found = await User.findOne({refreshToken}).exec();
+    if (!found) {
+      res.clearCookie(refreshTokenName, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: 'strict',
+      })
+      return res.status(204).json({message: "No user found."});
+    }
+
+    // create new access token
+    const accessToken = issueAccessToken(found);
+
+    // create new refresh token
+    const newRefreshToken = issueRefreshToken(found);
+
+    // update refresh token in db
+    found.refreshToken = newRefreshToken;
+    await found.save();
+
+    // create new secure cookie with new refresh token
+    res.cookie(refreshTokenName, newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: 'strict',
+      }
+    );
+
+    return res.status(200).json({accessToken});
   } catch (err) {
     console.log(err);
     return res.status(500).json({message: "Internal server error"});

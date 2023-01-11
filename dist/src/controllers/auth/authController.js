@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleLogout = exports.handleRegister = exports.handleLogin = void 0;
+exports.handleRefreshToken = exports.handleLogout = exports.handleRegister = exports.handleLogin = void 0;
 const User_model_1 = __importDefault(require("../../model/User.model"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jwt_utils_1 = require("../../utils/jwt.utils");
@@ -65,16 +65,12 @@ const handleLogin = async (req, res) => {
         res.cookie(globalVariables_1.refreshTokenName, refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: 'none',
-        });
-        res.cookie(globalVariables_1.accessTokenName, accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: 'none',
+            sameSite: 'strict',
         });
         // Send authorization roles and access token to user
         res.json({
             message: "Login successful",
+            accessToken,
             user: {
                 roles: result.roles,
                 username: result.username,
@@ -171,4 +167,41 @@ const handleLogout = async (req, res) => {
     }
 };
 exports.handleLogout = handleLogout;
+const handleRefreshToken = async (req, res) => {
+    try {
+        const cookies = req.cookies;
+        if (!cookies || !cookies[globalVariables_1.refreshTokenName])
+            return res.status(401).json({ message: "No cookies found." });
+        const refreshToken = cookies[globalVariables_1.refreshTokenName];
+        // Is refreshToken in db?
+        const found = await User_model_1.default.findOne({ refreshToken }).exec();
+        if (!found) {
+            res.clearCookie(globalVariables_1.refreshTokenName, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: 'strict',
+            });
+            return res.status(204).json({ message: "No user found." });
+        }
+        // create new access token
+        const accessToken = (0, jwt_utils_1.issueAccessToken)(found);
+        // create new refresh token
+        const newRefreshToken = (0, jwt_utils_1.issueRefreshToken)(found);
+        // update refresh token in db
+        found.refreshToken = newRefreshToken;
+        await found.save();
+        // create new secure cookie with new refresh token
+        res.cookie(globalVariables_1.refreshTokenName, newRefreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: 'strict',
+        });
+        return res.status(200).json({ accessToken });
+    }
+    catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+exports.handleRefreshToken = handleRefreshToken;
 //# sourceMappingURL=authController.js.map

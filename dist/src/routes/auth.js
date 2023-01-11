@@ -12,6 +12,7 @@ router.post('/register', (0, validate_1.default)(user_schema_1.RegisterSchema), 
 router.post('/login', (0, validate_1.default)(user_schema_1.LoginSchema), authController_1.handleLogin);
 // GET /api/auth/logout
 router.get('/logout', authController_1.handleLogout);
+router.get('/refresh-token', authController_1.handleRefreshToken);
 // POST /api/auth/forgotPassword
 // router.post('/forgotPassword', authController.forgotPassword);
 // Protect all routes after this middleware

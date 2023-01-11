@@ -51,9 +51,7 @@ exports.issueAccessToken = issueAccessToken;
 function issueRefreshToken(user) {
     return signJwt({
         username: user.username,
-        email: user.email,
-        roles: user.roles && Object.values(user.roles).filter(Boolean),
-    }, globalVariables_1.refreshTokenSecret, { expiresIn: "90d" });
+    }, globalVariables_1.refreshTokenSecret, { expiresIn: "30d" });
 }
 exports.issueRefreshToken = issueRefreshToken;
 //# sourceMappingURL=jwt.utils.js.map

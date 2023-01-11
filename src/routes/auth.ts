@@ -1,5 +1,5 @@
 import express from 'express';
-import {handleLogin, handleLogout, handleRegister} from '../controllers/auth/authController';
+import {handleLogin, handleLogout, handleRegister, handleRefreshToken} from '../controllers/auth/authController';
 import validate from "../middleware/validate";
 import {LoginSchema, RegisterSchema} from "../schema/user.schema";
 
@@ -20,6 +20,10 @@ router.post(
 // GET /api/auth/logout
 router.get('/logout',
   handleLogout,
+);
+
+router.get('/refresh-token',
+  handleRefreshToken,
 );
 
 // POST /api/auth/forgotPassword

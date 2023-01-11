@@ -46,7 +46,5 @@ export function issueAccessToken(user: JwtPayload) {
 export function issueRefreshToken(user: JwtPayload) {
   return signJwt({
     username: user.username,
-    email: user.email,
-    roles: user.roles && Object.values(user.roles).filter(Boolean),
-  }, refreshTokenSecret, {expiresIn: "90d"})
+  }, refreshTokenSecret, {expiresIn: "30d"})
 }
