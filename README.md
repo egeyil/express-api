@@ -2,8 +2,8 @@
 
 This is a REST API, with MVC architecture.
 Built with Express.js and Typescript to act as a template for future projects.
-Includes best practices for security, performance and code-readability. Has support for CRUD operations, authentication
-with JWT, authorization with user roles.
+Includes best practices for security, performance and code architecture. Has support for CRUD operations, authentication
+with JWT and CSRF Tokens, authorization with user roles.
 
 ### Features
 
@@ -11,19 +11,19 @@ with JWT, authorization with user roles.
 - Typescript
 - MongoDB
 - Mongoose
+- CRUD operations
+- Authentication (JWT) with access and refresh tokens
+- Security best practices with packages like Zod, Helmet, Validator, XSS, CORS, JWT and more
 - Zod and Validator.js for validation and sanitization
 - Error and Request logging to console and files
-- CRUD
-- Rate limiting
-- Security best practices with packages like Zod, Helmet, Validator, XSS, CORS, JWT and more
-- Authentication (JWT) with access and refresh tokens
 - Authorization with user roles
-- API Layer (Integration) testing with Jest, Supertest and ts-jest
+- API Layer (Integration) testing with Jest, Supertest and ts-jest (Not fully implemented)
+- Rate limiting
+- CSRF protection with anti-CSRF Tokens
 
 ### Features to be added
 
 - Swagger for API documentation
-- CSRF protection
 - Google OAuth
 - Metrics with Prometheus
 - Docker
@@ -36,6 +36,7 @@ with JWT, authorization with user roles.
 - POST /api/auth/register
 - POST /api/auth/login
 - POST /api/auth/logout
+- POST /api/auth/refresh-token
 
 #### Posts
 

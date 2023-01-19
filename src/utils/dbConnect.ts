@@ -1,9 +1,14 @@
 import mongoose from 'mongoose';
+import config from '../config/config';
 
 const connectDB = async () => {
   try {
-    let db = process.env.DATABASE_URI || '';
-    const conn = await mongoose.connect(db);
+    const {databaseUrl} = config;
+    if (!databaseUrl) {
+      console.error('No database url found');
+      process.exit(1);
+    }
+    const conn = await mongoose.connect(databaseUrl);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (err) {
     console.error(err);

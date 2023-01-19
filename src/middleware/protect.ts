@@ -1,17 +1,16 @@
 import {Request, Response, NextFunction} from "express";
 import {issueAccessToken, verifyJwt} from "../utils/jwt.utils";
-import {
-  accessTokenSecret,
-  refreshTokenName,
-  refreshTokenSecret
-} from "../config/globalVariables";
+import config from "../config/config";
 import {JwtPayload} from "jsonwebtoken";
+
+const { accessTokenSecret, refreshTokenName, refreshTokenSecret } = config;
 
 // This middleware is used to protect routes, deserialize the user from the JWT, and attach it to the res.locals object
 const protect = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const refreshToken = req.cookies[refreshTokenName];
     const authHeader = req.headers.authorization;
+    const csrfToken = req.headers['x-csrf-token'];
     if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({message: "Unauthorized, no access token provided"});
     const accessToken = authHeader.split(' ')[1];
 
@@ -29,6 +28,9 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
       })
       return res.status(401).json({message: "Unauthorized, invalid access token"});
     }
+
+    // CSRF token validation
+    if (!csrfToken || csrfToken !== decoded.csrfToken) return res.status(401).json({message: "Unauthorized, invalid CSRF token"});
 
     // If access token is expired, create new access token after validating the refresh token
     if (expired) {
@@ -50,10 +52,11 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
       }
 
       // If the refresh token is valid, create a new access token
-      const newAccessToken = issueAccessToken(decodedRefresh);
+      const {accessToken: newAccessToken, csrfToken} = issueAccessToken(decodedRefresh);
 
       res.locals.user = decodedRefresh;
       res.locals.accessToken = newAccessToken;
+      res.locals.csrfToken = csrfToken;
       return next();
     }
 

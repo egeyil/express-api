@@ -31,7 +31,8 @@ const User_model_1 = __importDefault(require("../../model/User.model"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jwt_utils_1 = require("../../utils/jwt.utils");
 const process = __importStar(require("process"));
-const globalVariables_1 = require("../../config/globalVariables");
+const config_1 = __importDefault(require("../../config/config"));
+const { refreshTokenName, refreshTokenSecret } = config_1.default;
 const handleLogin = async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -56,13 +57,13 @@ const handleLogin = async (req, res) => {
         // Get roles
         const roles = foundUser.roles && Object.values(foundUser.roles).filter(Boolean);
         // create JWTs
-        const accessToken = (0, jwt_utils_1.issueAccessToken)(foundUser);
+        const { accessToken, csrfToken } = (0, jwt_utils_1.issueAccessToken)(foundUser);
         const refreshToken = (0, jwt_utils_1.issueRefreshToken)(foundUser);
         // Saving refreshToken with current user
         foundUser.refreshToken = refreshToken;
         const result = await foundUser.save();
         // Creates Secure Cookie with refresh token
-        res.cookie(globalVariables_1.refreshTokenName, refreshToken, {
+        res.cookie(refreshTokenName, refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: 'strict',
@@ -71,6 +72,7 @@ const handleLogin = async (req, res) => {
         res.json({
             message: "Login successful",
             accessToken,
+            csrfToken,
             user: {
                 roles: result.roles,
                 username: result.username,
@@ -121,48 +123,33 @@ const handleLogout = async (req, res) => {
     try {
         // On client, also delete the accessToken
         const cookies = req.cookies;
-        if (!cookies || !cookies[globalVariables_1.refreshTokenName])
+        if (!cookies || !cookies[refreshTokenName])
             return res.status(400).json({ message: "No cookies found." }); //No content
-        const refreshToken = cookies[globalVariables_1.refreshTokenName];
+        const refreshToken = cookies[refreshTokenName];
         // Is refreshToken in db?
         const foundUser = await User_model_1.default.findOne({ refreshToken }).exec();
         if (!foundUser) {
-            res.clearCookie(globalVariables_1.refreshTokenName, {
+            res.clearCookie(refreshTokenName, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: 'none',
-            });
-            res.clearCookie(globalVariables_1.accessTokenName, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'none',
+                sameSite: 'strict',
             });
             return res.status(204).json({ message: "No user found." });
         }
         // Delete refreshToken in db
         foundUser.refreshToken = undefined;
         const result = await foundUser.save();
-        res.clearCookie(globalVariables_1.refreshTokenName, {
+        res.clearCookie(refreshTokenName, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: 'none',
-        });
-        res.clearCookie(globalVariables_1.accessTokenName, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: 'none',
+            sameSite: 'strict',
         });
         return res.status(200).json({
-            message: "User logged out successfully.",
-            user: {
-                roles: result.roles,
-                username: result.username,
-                email: result.email,
-            }
+            message: "Logged out successfully.",
         });
     }
-    catch (err) {
-        console.log(err);
+    catch (e) {
+        console.log(e);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
@@ -170,36 +157,42 @@ exports.handleLogout = handleLogout;
 const handleRefreshToken = async (req, res) => {
     try {
         const cookies = req.cookies;
-        if (!cookies || !cookies[globalVariables_1.refreshTokenName])
+        if (!cookies || !cookies[refreshTokenName])
             return res.status(401).json({ message: "No cookies found." });
-        const refreshToken = cookies[globalVariables_1.refreshTokenName];
+        const refreshToken = cookies[refreshTokenName];
+        const { valid, expired } = (0, jwt_utils_1.verifyJwt)(refreshToken, refreshTokenSecret);
+        if (!valid || expired)
+            return res.status(401).json({ message: "Invalid or expired token." });
         // Is refreshToken in db?
         const found = await User_model_1.default.findOne({ refreshToken }).exec();
         if (!found) {
-            res.clearCookie(globalVariables_1.refreshTokenName, {
+            res.clearCookie(refreshTokenName, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: 'strict',
             });
             return res.status(204).json({ message: "No user found." });
         }
+        const { decoded: decodedRefresh, expired: expiredRefresh, valid: validRefresh } = (0, jwt_utils_1.verifyJwt)(refreshToken, refreshTokenSecret, { complete: true });
+        if (expiredRefresh || !validRefresh)
+            return res.status(401).json({ message: "Invalid or expired refresh token." });
         // create new access token
-        const accessToken = (0, jwt_utils_1.issueAccessToken)(found);
+        const { accessToken, csrfToken } = (0, jwt_utils_1.issueAccessToken)(found);
         // create new refresh token
         const newRefreshToken = (0, jwt_utils_1.issueRefreshToken)(found);
         // update refresh token in db
         found.refreshToken = newRefreshToken;
         await found.save();
         // create new secure cookie with new refresh token
-        res.cookie(globalVariables_1.refreshTokenName, newRefreshToken, {
+        res.cookie(refreshTokenName, newRefreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: 'strict',
         });
-        return res.status(200).json({ accessToken });
+        return res.status(200).json({ accessToken, csrfToken });
     }
-    catch (err) {
-        console.log(err);
+    catch (e) {
+        console.log(e);
         return res.status(500).json({ message: "Internal server error" });
     }
 };

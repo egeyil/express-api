@@ -29,10 +29,7 @@ app.use(credentials_1.default);
 // Cross Origin Resource Sharing
 app.use((0, cors_1.default)(corsOptions_1.default));
 // built-in middleware to handle urlencoded form data
-app.use(express_1.default.urlencoded({ extended: false, limit: '30kb' }));
 app.use(express_1.default.json({ limit: '30kb' }));
-// built-in middleware for json
-app.use(express_1.default.json());
 //middleware for cookies
 app.use((0, cookie_parser_1.default)());
 //serve static files

@@ -5,17 +5,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.issueRefreshToken = exports.issueAccessToken = exports.verifyJwt = exports.signJwt = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const globalVariables_1 = require("../config/globalVariables");
+const config_1 = __importDefault(require("../config/config"));
+const { accessTokenSecret, refreshTokenSecret, accessTokenExpiresIn, refreshTokenExpiresIn } = config_1.default;
 // Create secrets with require('crypto').randomBytes(64).toString('hex')
 function signJwt(object, secret, options) {
+    console.log(secret);
     return jsonwebtoken_1.default.sign(object, secret, {
         ...(options && options),
     });
 }
 exports.signJwt = signJwt;
-function verifyJwt(token, secret) {
+function verifyJwt(token, secretOrPublicKey, options) {
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, secret);
+        const decoded = jsonwebtoken_1.default.verify(token, secretOrPublicKey, options);
         return {
             decoded: decoded,
             valid: true,
@@ -41,17 +43,23 @@ function verifyJwt(token, secret) {
 }
 exports.verifyJwt = verifyJwt;
 function issueAccessToken(user) {
-    return signJwt({
+    const csrfToken = Math.random().toString(36).slice(2);
+    const accessToken = signJwt({
         username: user.username,
         email: user.email,
         roles: user.roles && Object.values(user.roles).filter(Boolean),
-    }, globalVariables_1.accessTokenSecret, { expiresIn: "15s" });
+        csrfToken,
+    }, accessTokenSecret, { expiresIn: accessTokenExpiresIn });
+    return {
+        accessToken,
+        csrfToken
+    };
 }
 exports.issueAccessToken = issueAccessToken;
 function issueRefreshToken(user) {
     return signJwt({
         username: user.username,
-    }, globalVariables_1.refreshTokenSecret, { expiresIn: "30d" });
+    }, refreshTokenSecret, { expiresIn: refreshTokenExpiresIn });
 }
 exports.issueRefreshToken = issueRefreshToken;
 //# sourceMappingURL=jwt.utils.js.map

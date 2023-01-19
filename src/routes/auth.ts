@@ -1,5 +1,10 @@
 import express from 'express';
-import {handleLogin, handleLogout, handleRegister, handleRefreshToken} from '../controllers/auth/authController';
+import {
+  handleLogin,
+  handleLogout,
+  handleRegister,
+  handleRefreshToken,
+} from '../controllers/auth/authController';
 import validate from "../middleware/validate";
 import {LoginSchema, RegisterSchema} from "../schema/user.schema";
 

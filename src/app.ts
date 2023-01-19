@@ -31,11 +31,7 @@ app.use(credentials);
 app.use(cors(corsOptions));
 
 // built-in middleware to handle urlencoded form data
-app.use(express.urlencoded({extended: false, limit: '30kb'}));
 app.use(express.json({limit: '30kb'}));
-
-// built-in middleware for json
-app.use(express.json());
 
 //middleware for cookies
 app.use(cookieParser());

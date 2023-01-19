@@ -1,2 +1,3 @@
 20230104	00:39:03	129a65cc-d04d-428b-9c47-5e961f547a1d	undefined: undefined
 20230104	12:44:28	d0be5f07-36f9-433a-8404-d2777fe563d6	undefined: undefined
+20230111	23:36:07	c4908c03-988d-47a3-979a-b6cf43a7ea10	Error: Not allowed by CORS

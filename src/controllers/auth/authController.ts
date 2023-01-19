@@ -1,10 +1,11 @@
 import {NextFunction, Request, Response} from "express";
 import User from '../../model/User.model';
 import bcrypt from 'bcrypt';
-import {issueAccessToken, issueRefreshToken} from "../../utils/jwt.utils";
+import {issueAccessToken, issueRefreshToken, verifyJwt} from "../../utils/jwt.utils";
 import * as process from "process";
-import {accessTokenName, refreshTokenName} from "../../config/globalVariables";
+import config from "../../config/config";
 
+const { refreshTokenName, refreshTokenSecret } = config;
 export const handleLogin = async (req: Request, res: Response) => {
   try {
     const {username, email, password} = req.body;
@@ -30,7 +31,7 @@ export const handleLogin = async (req: Request, res: Response) => {
     const roles = foundUser.roles && Object.values(foundUser.roles).filter(Boolean);
 
     // create JWTs
-    const accessToken = issueAccessToken(foundUser)
+    const {accessToken, csrfToken} = issueAccessToken(foundUser)
     const refreshToken = issueRefreshToken(foundUser);
 
     // Saving refreshToken with current user
@@ -48,6 +49,7 @@ export const handleLogin = async (req: Request, res: Response) => {
     res.json({
       message: "Login successful",
       accessToken,
+      csrfToken,
       user: {
         roles: result.roles,
         username: result.username,
@@ -126,8 +128,8 @@ export const handleLogout = async (req: Request, res: Response) => {
     return res.status(200).json({
       message: "Logged out successfully.",
     });
-  } catch (err) {
-    console.log(err);
+  } catch (e) {
+    console.log(e);
     return res.status(500).json({message: "Internal server error"});
   }
 }
@@ -137,6 +139,9 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
     const cookies = req.cookies;
     if (!cookies || !cookies[refreshTokenName]) return res.status(401).json({message: "No cookies found."});
     const refreshToken = cookies[refreshTokenName];
+
+    const { valid, expired } = verifyJwt(refreshToken, refreshTokenSecret);
+    if (!valid || expired) return res.status(401).json({message: "Invalid or expired token."});
 
     // Is refreshToken in db?
     const found = await User.findOne({refreshToken}).exec();
@@ -149,8 +154,12 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
       return res.status(204).json({message: "No user found."});
     }
 
+    const { decoded: decodedRefresh, expired: expiredRefresh, valid: validRefresh } = verifyJwt(refreshToken, refreshTokenSecret, { complete: true });
+
+    if (expiredRefresh || !validRefresh) return res.status(401).json({message: "Invalid or expired refresh token."});
+
     // create new access token
-    const accessToken = issueAccessToken(found);
+    const {accessToken, csrfToken} = issueAccessToken(found);
 
     // create new refresh token
     const newRefreshToken = issueRefreshToken(found);
@@ -167,9 +176,9 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
       }
     );
 
-    return res.status(200).json({accessToken});
-  } catch (err) {
-    console.log(err);
+    return res.status(200).json({accessToken, csrfToken});
+  } catch (e) {
+    console.log(e);
     return res.status(500).json({message: "Internal server error"});
   }
 }

@@ -86,15 +86,29 @@ describe('Auth', () => {
     });
     describe('POST /auth/register', () => {
         describe('given valid credentials', () => {
-            it('should return 201', async () => {
-                const res = await request.post('/api/auth/register').send({
-                    username: 'Test',
-                    email: 'test@gmail.com',
-                    displayName: 'Test',
-                    password: '123456',
-                    confirmPassword: '123456',
+            describe('given the user already exists', () => {
+                it('should return 409', async () => {
+                    const res = await request.post('/api/auth/register').send({
+                        username: 'Test',
+                        email: 'test@gmail.com',
+                        displayName: 'Test',
+                        password: '123456',
+                        confirmPassword: '123456',
+                    });
+                    expect(res.statusCode).toBe(201);
                 });
-                expect(res.statusCode).toBe(201);
+            });
+            describe('given the user does not exist', () => {
+                it('should return 201', async () => {
+                    const res = await request.post('/api/auth/register').send({
+                        username: `Test${(Math.random() * 10000000).toFixed(0)}`,
+                        email: `Test${(Math.random() * 10000000).toFixed(0)}@gmail.com`,
+                        displayName: 'Test',
+                        password: '123456',
+                        confirmPassword: '123456',
+                    });
+                    expect(res.statusCode).toBe(201);
+                });
             });
         });
         describe('given not matching passwords', () => {

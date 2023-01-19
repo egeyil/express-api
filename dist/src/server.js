@@ -6,7 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./app"));
 const dbConnect_1 = __importDefault(require("./utils/dbConnect"));
 const swagger_1 = __importDefault(require("./utils/swagger"));
-const PORT = Number(process.env.PORT) || 3500;
+const config_1 = __importDefault(require("./config/config"));
+const PORT = Number(config_1.default.port);
 async function startServer() {
     await (0, dbConnect_1.default)();
     (0, swagger_1.default)(app_1.default, PORT);

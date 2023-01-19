@@ -1,17 +1,19 @@
 import jwt, {JwtPayload} from "jsonwebtoken";
-import {accessTokenSecret, refreshTokenSecret} from "../config/globalVariables";
+import config from "../config/config";
 
+const {  accessTokenSecret, refreshTokenSecret, accessTokenExpiresIn, refreshTokenExpiresIn } = config;
 // Create secrets with require('crypto').randomBytes(64).toString('hex')
 
 export function signJwt(object: Object, secret: string, options?: jwt.SignOptions | undefined) {
+  console.log(secret)
   return jwt.sign(object, secret, {
     ...(options && options),
   });
 }
 
-export function verifyJwt(token: string, secret: string) {
+export function verifyJwt(token: string, secretOrPublicKey: string, options?: jwt.VerifyOptions | undefined) {
   try {
-    const decoded = jwt.verify(token, secret);
+    const decoded = jwt.verify(token, secretOrPublicKey, options);
     return {
       decoded: decoded,
       valid: true,
@@ -36,15 +38,21 @@ export function verifyJwt(token: string, secret: string) {
 }
 
 export function issueAccessToken(user: JwtPayload) {
-  return signJwt({
+  const csrfToken = Math.random().toString(36).slice(2);
+  const accessToken = signJwt({
     username: user.username,
     email: user.email,
     roles: user.roles && Object.values(user.roles).filter(Boolean),
-  }, accessTokenSecret, {expiresIn: "15s"})
+    csrfToken,
+  }, accessTokenSecret, {expiresIn: accessTokenExpiresIn});
+  return {
+    accessToken,
+    csrfToken
+  }
 }
 
 export function issueRefreshToken(user: JwtPayload) {
   return signJwt({
     username: user.username,
-  }, refreshTokenSecret, {expiresIn: "30d"})
+  }, refreshTokenSecret, {expiresIn: refreshTokenExpiresIn})
 }

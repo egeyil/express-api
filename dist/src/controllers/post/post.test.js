@@ -36,20 +36,18 @@ const login = async (username, password) => {
         password,
     });
 };
-let cookies;
 describe('Post', () => {
     beforeAll(async () => {
         await (0, dbConnect_1.default)();
         const res = await login("Ege", "123456");
-        cookies = res.headers['set-cookie'];
-        console.log(cookies);
+        const { accessToken } = res.body;
     });
     afterAll(async () => {
         await (0, dbConnect_1.disconnectDB)();
     });
     describe('GET /posts', () => {
         it('should return 200 OK', async () => {
-            expect(true).toBe(true);
+            const res = await request.get('/api/posts');
         });
         // describe('If the user is not logged in', () => {
         //   it('should return 401', async () => {

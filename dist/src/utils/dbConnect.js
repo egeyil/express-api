@@ -5,10 +5,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.disconnectDB = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
+const config_1 = __importDefault(require("../config/config"));
 const connectDB = async () => {
     try {
-        let db = process.env.DATABASE_URI || '';
-        const conn = await mongoose_1.default.connect(db);
+        const { databaseUrl } = config_1.default;
+        if (!databaseUrl) {
+            console.error('No database url found');
+            process.exit(1);
+        }
+        const conn = await mongoose_1.default.connect(databaseUrl);
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     }
     catch (err) {
